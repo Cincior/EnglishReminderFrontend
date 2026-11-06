@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import pl.cincior.englishreminder.auth.domain.repository.TokenStorage
+import pl.cincior.englishreminder.feature.auth.domain.repository.TokenStorage
 import pl.cincior.englishreminder.core.network.ApolloClientFactory
 import javax.inject.Singleton
 

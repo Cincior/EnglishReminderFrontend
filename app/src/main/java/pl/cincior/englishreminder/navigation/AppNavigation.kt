@@ -9,12 +9,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import pl.cincior.englishreminder.auth.presentation.login.LoginRoute
-import pl.cincior.englishreminder.auth.presentation.register.RegisterRoute
-import pl.cincior.englishreminder.auth.presentation.reset_password.ResetPasswordRoute
-import pl.cincior.englishreminder.auth.presentation.reset_request.ResetRequestRoute
-import pl.cincior.englishreminder.auth.presentation.verify.VerifyAccountRoute
-import pl.cincior.englishreminder.home.presentation.HomeRoute
+import pl.cincior.englishreminder.feature.auth.presentation.login.LoginRoute
+import pl.cincior.englishreminder.feature.auth.presentation.register.RegisterRoute
+import pl.cincior.englishreminder.feature.auth.presentation.reset_password.ResetPasswordRoute
+import pl.cincior.englishreminder.feature.auth.presentation.reset_request.ResetRequestRoute
+import pl.cincior.englishreminder.feature.auth.presentation.verify.VerifyAccountRoute
+import pl.cincior.englishreminder.feature.home.presentation.HomeRoute
 
 sealed class Screen(val route: String) {
     data object Login : Screen("Login")
@@ -52,7 +52,7 @@ fun AppNavigation(
                     navController.navigate(Screen.Register.route)
                 },
                 onVerifyAccountClick = {
-                    navController.navigate(Screen.VerifyAccount.route)
+                    navController.navigate(Screen.VerifyAccount.createRoute())
                 },
                 onForgotPasswordClick = { email ->
                     navController.navigate(Screen.ResetPasswordRequest.createRoute(email))

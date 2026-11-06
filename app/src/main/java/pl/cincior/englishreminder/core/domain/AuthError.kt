@@ -1,7 +1,7 @@
 package pl.cincior.englishreminder.core.domain
 
-sealed interface LoginError : RootError {
-    enum class Data : LoginError {
+sealed interface AuthError : RootError {
+    enum class Data : AuthError {
         INVALID_CREDENTIALS,
         USER_NOT_FOUND,
         EMAIL_OR_NICKNAME_TAKEN,
@@ -15,7 +15,7 @@ sealed interface LoginError : RootError {
         SERVER_ERROR,
         UNKNOWN_ERROR
     }
-    enum class Network : LoginError {
+    enum class Network : AuthError {
         NETWORK_ERROR,
         NO_CONNECTION,
         SERVER_ERROR,

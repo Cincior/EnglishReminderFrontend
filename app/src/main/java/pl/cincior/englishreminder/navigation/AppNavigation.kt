@@ -9,11 +9,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import pl.cincior.englishreminder.auth.presentation.login.LoginRoute
+import pl.cincior.englishreminder.auth.presentation.register.RegisterRoute
 import pl.cincior.englishreminder.home.presentation.HomeRoute
 
 sealed class Screen(val route: String) {
     data object Login : Screen("Login")
     data object Home : Screen("Home")
+    data object Register : Screen("Register")
 }
 
 @Composable
@@ -33,6 +35,9 @@ fun AppNavigation(
                    navController.navigate(Screen.Home.route) {
                        popUpTo(Screen.Login.route) { inclusive = true }
                    }
+               },
+               onRegisterClick = {
+                   navController.navigate(Screen.Register.route)
                }
            )
        }
@@ -43,6 +48,18 @@ fun AppNavigation(
 
            )
        }
+
+        composable(Screen.Register.route) {
+            RegisterRoute(
+                onBackClicked = { navController.popBackStack() },
+                onRegisterSuccess = {
+                    //todo Verify not login
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Register.route) { inclusive = true }
+                    }
+                }
+            )
+        }
 
     }
 }

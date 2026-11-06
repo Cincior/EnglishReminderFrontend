@@ -10,12 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @Composable
 fun LoginRoute(
     onLoginSuccess: () -> Unit,
+    onRegisterClick: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -28,6 +30,7 @@ fun LoginRoute(
 
     LoginScreen(
         uiState = uiState,
+        onRegisterClick = onRegisterClick,
         onEmailChange = viewModel::onEmailChanged,
         onPasswordChange = viewModel::onPasswordChanged,
         onLoginClick = viewModel::onLoginClick
@@ -37,6 +40,7 @@ fun LoginRoute(
 @Composable
 fun LoginScreen(
     uiState: LoginUiState,
+    onRegisterClick: () -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit
@@ -104,6 +108,18 @@ fun LoginScreen(
                 enabled = !uiState.isLoading
             ) {
                 Text(if (uiState.isLoading) "Logowanie..." else "Zaloguj")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TextButton(
+                onClick = onRegisterClick,
+                enabled = !uiState.isLoading
+            ) {
+                Text(
+                    text = "Nie masz konta? Zarejestruj się",
+                    textDecoration = TextDecoration.Underline
+                )
             }
         }
     }

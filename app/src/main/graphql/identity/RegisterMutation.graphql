@@ -1,0 +1,6 @@
+mutation Register($userData: NewUserData!) {
+    register(userData: $userData) {
+        registered
+        verificationRequired
+    }
+}

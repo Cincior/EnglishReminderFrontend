@@ -1,27 +1,27 @@
 package pl.cincior.englishreminder.core.presentation
 
 import pl.cincior.englishreminder.R
-import pl.cincior.englishreminder.core.domain.LoginError
+import pl.cincior.englishreminder.core.domain.AuthError
 import pl.cincior.englishreminder.core.domain.WordError
 
-fun LoginError.asUiText(): UiText {
+fun AuthError.asUiText(): UiText {
     return when (this) {
-        LoginError.Data.INVALID_CREDENTIALS -> UiText.StringResource(R.string.invalid_credentials)
-        LoginError.Data.USER_NOT_FOUND -> UiText.StringResource(R.string.user_not_found)
-        LoginError.Data.EMAIL_OR_NICKNAME_TAKEN -> UiText.StringResource(R.string.email_or_nickname_taken)
-        LoginError.Data.VALIDATION_ERROR -> UiText.StringResource(R.string.validation_error)
-        LoginError.Data.ACCOUNT_NOT_VERIFIED -> UiText.StringResource(R.string.account_not_verified)
-        LoginError.Data.USER_ALREADY_VERIFIED -> UiText.StringResource(R.string.user_already_verified)
-        LoginError.Data.INVALID_VERIFICATION_CODE -> UiText.StringResource(R.string.invalid_verification_code)
-        LoginError.Data.INVALID_RESET_PASSWORD_CODE -> UiText.StringResource(R.string.invalid_reset_password_code)
-        LoginError.Data.INVALID_ROLE -> UiText.StringResource(R.string.invalid_role)
-        LoginError.Data.SESSION_EXPIRED -> UiText.StringResource(R.string.session_expired)
-        LoginError.Data.SERVER_ERROR -> UiText.StringResource(R.string.server_error)
-        LoginError.Data.UNKNOWN_ERROR -> UiText.StringResource(R.string.unknown_error)
-        LoginError.Network.NETWORK_ERROR -> UiText.StringResource(R.string.network_error)
-        LoginError.Network.SERVER_ERROR -> UiText.StringResource(R.string.server_error)
-        LoginError.Network.NO_CONNECTION -> UiText.StringResource(R.string.no_connection)
-        LoginError.Network.UNKNOWN -> UiText.StringResource(R.string.unknown_error)
+        AuthError.Data.INVALID_CREDENTIALS -> UiText.StringResource(R.string.invalid_credentials)
+        AuthError.Data.USER_NOT_FOUND -> UiText.StringResource(R.string.user_not_found)
+        AuthError.Data.EMAIL_OR_NICKNAME_TAKEN -> UiText.StringResource(R.string.email_or_nickname_taken)
+        AuthError.Data.VALIDATION_ERROR -> UiText.StringResource(R.string.validation_error)
+        AuthError.Data.ACCOUNT_NOT_VERIFIED -> UiText.StringResource(R.string.account_not_verified)
+        AuthError.Data.USER_ALREADY_VERIFIED -> UiText.StringResource(R.string.user_already_verified)
+        AuthError.Data.INVALID_VERIFICATION_CODE -> UiText.StringResource(R.string.invalid_verification_code)
+        AuthError.Data.INVALID_RESET_PASSWORD_CODE -> UiText.StringResource(R.string.invalid_reset_password_code)
+        AuthError.Data.INVALID_ROLE -> UiText.StringResource(R.string.invalid_role)
+        AuthError.Data.SESSION_EXPIRED -> UiText.StringResource(R.string.session_expired)
+        AuthError.Data.SERVER_ERROR -> UiText.StringResource(R.string.server_error)
+        AuthError.Data.UNKNOWN_ERROR -> UiText.StringResource(R.string.unknown_error)
+        AuthError.Network.NETWORK_ERROR -> UiText.StringResource(R.string.network_error)
+        AuthError.Network.SERVER_ERROR -> UiText.StringResource(R.string.server_error)
+        AuthError.Network.NO_CONNECTION -> UiText.StringResource(R.string.no_connection)
+        AuthError.Network.UNKNOWN -> UiText.StringResource(R.string.unknown_error)
     }
 }
 

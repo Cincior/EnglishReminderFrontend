@@ -1,13 +1,23 @@
 package pl.cincior.englishreminder.auth.presentation.login
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -18,6 +28,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 fun LoginRoute(
     onLoginSuccess: () -> Unit,
     onRegisterClick: () -> Unit,
+    onVerifyAccountClick: () -> Unit,
+    onForgotPasswordClick: (email: String) -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -31,6 +43,8 @@ fun LoginRoute(
     LoginScreen(
         uiState = uiState,
         onRegisterClick = onRegisterClick,
+        onVerifyAccountClick = onVerifyAccountClick,
+        onForgotPasswordClick = { onForgotPasswordClick(uiState.email) },
         onEmailChange = viewModel::onEmailChanged,
         onPasswordChange = viewModel::onPasswordChanged,
         onLoginClick = viewModel::onLoginClick
@@ -41,6 +55,8 @@ fun LoginRoute(
 fun LoginScreen(
     uiState: LoginUiState,
     onRegisterClick: () -> Unit,
+    onVerifyAccountClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit
@@ -113,11 +129,31 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             TextButton(
+                onClick = onForgotPasswordClick,
+                enabled = !uiState.isLoading
+            ) {
+                Text(
+                    text = "Nie pamiętasz hasła?",
+                    textDecoration = TextDecoration.Underline
+                )
+            }
+
+            TextButton(
                 onClick = onRegisterClick,
                 enabled = !uiState.isLoading
             ) {
                 Text(
                     text = "Nie masz konta? Zarejestruj się",
+                    textDecoration = TextDecoration.Underline
+                )
+            }
+
+            TextButton(
+                onClick = onVerifyAccountClick,
+                enabled = !uiState.isLoading
+            ) {
+                Text(
+                    text = "Nie zweryfikowałeś konta? Zrób to teraz",
                     textDecoration = TextDecoration.Underline
                 )
             }

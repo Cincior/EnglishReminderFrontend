@@ -47,4 +47,4 @@ class ApolloClientFactory @Inject constructor(
 }
 
 fun ApolloResponse<*>.errorCode(): String? =
-    errors?.firstOrNull()?.extensions?.get("code") as? String
+    errors?.firstOrNull()?.extensions?.get("errorCode") as? String

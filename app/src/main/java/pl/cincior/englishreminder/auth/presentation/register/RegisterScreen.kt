@@ -28,14 +28,14 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 @Composable
 fun RegisterRoute(
     onBackClicked: () -> Unit,
-    onRegisterSuccess: () -> Unit,
+    onRegisterSuccess: (String) -> Unit,
     viewModel: RegisterViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.isRegistered) {
         if (uiState.isRegistered) {
-            onRegisterSuccess()
+            onRegisterSuccess(uiState.email)
         }
     }
 

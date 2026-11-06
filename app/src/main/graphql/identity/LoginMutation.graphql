@@ -1,0 +1,8 @@
+mutation Login($email: String!, $password: String!) {
+    login(
+        userLoginData: { email: $email, password: $password }
+    ) {
+        refreshToken
+        token
+    }
+}

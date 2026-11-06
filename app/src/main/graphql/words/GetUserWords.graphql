@@ -1,0 +1,9 @@
+query GetUserWords {
+    getUserWords {
+        word
+        translation
+        insertDateTime
+        id
+        memorizeChance
+    }
+}

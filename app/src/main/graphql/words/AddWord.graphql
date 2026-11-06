@@ -1,0 +1,7 @@
+mutation AddWord($word: String!, $translation: String!, $forceDuplicate: Boolean!) {
+    addWord(input: { word: $word, translation: $translation, forceDuplicate: $forceDuplicate }) {
+        created
+        wordId
+        existingWordId
+    }
+}

@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">EnglishReminder</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="invalid_credentials">Niepoprawny email lub hasło</string>
+    <string name="user_not_found">Nie znaleziono użytkownika o podanym adresie e-mail</string>
+    <string name="email_or_nickname_taken">Podany email lub nazwa użytkownika jest już zajęta</string>
+    <string name="validation_error">Błędne dane. Sprawdź wprowadzony formularz</string>
+    <string name="account_not_verified">Konto nie zostało zweryfikowane. Sprawdź swoją skrzynkę e-mail</string>
+    <string name="user_already_verified">Konto zostało już wcześniej zweryfikowane</string>
+    <string name="invalid_verification_code">Niepoprawny kod weryfikacyjny</string>
+    <string name="invalid_reset_password_code">Niepoprawny kod resetowania hasła</string>
+    <string name="invalid_role">Brak uprawnień do zalogowania się z tą rolą</string>
+    <string name="session_expired">Twoja sesja wygasła. Zaloguj się ponownie</string>
+    <string name="server_error">Błąd serwera. Spróbuj ponownie później</string>
+    <string name="unknown_error">Wystąpił nieoczekiwany błąd</string>
+    <string name="network_error">Brak połączenia z siecią. Sprawdź swoje połączenie internetowe</string>
+    <string name="no_connection">Brak połączenia z siecią</string>
+
+    <!-- Word errors -->
+    <string name="no_words_found">Nie znaleziono żadnych słówek</string>
+    <string name="word_not_found">Nie znaleziono podanego słówka</string>
+    <string name="duplicated_word">To słówko już istnieje w Twojej bazie</string>
+    <string name="failed_to_add_word">Nie udało się dodać słówka</string>
+    <string name="invalid_identifier">Nieprawidłowy identyfikator słówka</string>
+    <string name="invalid_word_data">Niepoprawne dane słówka</string>
+    <string name="cannot_calculate_prediction">Nie można obliczyć szansy zapamiętania</string>
+    <string name="prediction_service_error">Błąd usługi przewidywania powtórek</string>
+    <string name="category_not_found">Nie znaleziono wybranej kategorii</string>
+    <string name="wrong_time_format">Niepoprawny format czasu</string>
+    <string name="wrong_time">Niepoprawny czas powiadomienia</string>
+    <string name="failed_to_schedule_notification">Nie udało się zaplanować powiadomienia</string>
+</resources>

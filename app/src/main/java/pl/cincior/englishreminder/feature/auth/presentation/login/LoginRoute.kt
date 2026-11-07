@@ -28,7 +28,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 fun LoginRoute(
     onLoginSuccess: () -> Unit,
     onRegisterClick: () -> Unit,
-    onVerifyAccountClick: () -> Unit,
+    onVerifyAccountClick: (String) -> Unit,
     onForgotPasswordClick: (email: String) -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
@@ -43,7 +43,7 @@ fun LoginRoute(
     LoginScreen(
         uiState = uiState,
         onRegisterClick = onRegisterClick,
-        onVerifyAccountClick = onVerifyAccountClick,
+        onVerifyAccountClick = { onVerifyAccountClick(uiState.email) },
         onForgotPasswordClick = { onForgotPasswordClick(uiState.email) },
         onEmailChange = viewModel::onEmailChanged,
         onPasswordChange = viewModel::onPasswordChanged,

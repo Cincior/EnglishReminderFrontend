@@ -72,7 +72,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .weight(1f)
             ) {
-                Text("XD")
+
             }
             Column(
                 modifier = Modifier

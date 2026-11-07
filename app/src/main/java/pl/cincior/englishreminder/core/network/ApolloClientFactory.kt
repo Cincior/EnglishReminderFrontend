@@ -5,7 +5,7 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.network.okHttpClient
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import pl.cincior.englishreminder.auth.domain.repository.TokenStorage
+import pl.cincior.englishreminder.feature.auth.domain.repository.TokenStorage
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -47,4 +47,4 @@ class ApolloClientFactory @Inject constructor(
 }
 
 fun ApolloResponse<*>.errorCode(): String? =
-    errors?.firstOrNull()?.extensions?.get("code") as? String
+    errors?.firstOrNull()?.extensions?.get("errorCode") as? String

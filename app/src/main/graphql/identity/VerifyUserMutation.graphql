@@ -1,0 +1,5 @@
+mutation VerifyUser($userVerifyData: UserVerifyData!) {
+    verifyUser(userVerifyData: $userVerifyData) {
+        verified
+    }
+}

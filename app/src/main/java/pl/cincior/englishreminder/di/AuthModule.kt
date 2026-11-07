@@ -7,10 +7,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import pl.cincior.englishreminder.auth.data.repository.AuthRepositoryImpl
-import pl.cincior.englishreminder.auth.data.repository.TokenStorageImpl
-import pl.cincior.englishreminder.auth.domain.repository.AuthRepository
-import pl.cincior.englishreminder.auth.domain.repository.TokenStorage
+import pl.cincior.englishreminder.feature.auth.data.repository.AuthRepositoryImpl
+import pl.cincior.englishreminder.feature.auth.data.repository.TokenStorageImpl
+import pl.cincior.englishreminder.feature.auth.domain.repository.AuthRepository
+import pl.cincior.englishreminder.feature.auth.domain.repository.TokenStorage
 import javax.inject.Singleton
 
 @Module

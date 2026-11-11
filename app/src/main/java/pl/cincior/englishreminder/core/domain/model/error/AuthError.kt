@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.core.domain
+package pl.cincior.englishreminder.core.domain.model.error
 
 sealed interface AuthError : RootError {
     enum class Data : AuthError {

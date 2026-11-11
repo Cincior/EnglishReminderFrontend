@@ -1,16 +1,13 @@
 package pl.cincior.englishreminder.di
 
-import android.content.Context
 import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import pl.cincior.englishreminder.feature.auth.data.repository.AuthRepositoryImpl
-import pl.cincior.englishreminder.feature.auth.data.repository.TokenStorageImpl
+import pl.cincior.englishreminder.core.data.repository.TokenStorageImpl
 import pl.cincior.englishreminder.feature.auth.domain.repository.AuthRepository
-import pl.cincior.englishreminder.feature.auth.domain.repository.TokenStorage
+import pl.cincior.englishreminder.core.domain.repository.TokenStorage
 import javax.inject.Singleton
 
 @Module

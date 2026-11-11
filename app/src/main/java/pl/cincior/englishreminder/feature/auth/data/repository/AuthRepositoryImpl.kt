@@ -11,8 +11,8 @@ import pl.cincior.englishreminder.feature.auth.domain.model.ResetPasswordPayload
 import pl.cincior.englishreminder.feature.auth.domain.model.ResetPasswordRequestPayload
 import pl.cincior.englishreminder.feature.auth.domain.model.VerifyPayload
 import pl.cincior.englishreminder.feature.auth.domain.repository.AuthRepository
-import pl.cincior.englishreminder.core.domain.AuthError
-import pl.cincior.englishreminder.core.domain.Result
+import pl.cincior.englishreminder.core.domain.model.error.AuthError
+import pl.cincior.englishreminder.core.domain.model.Result
 import pl.cincior.englishreminder.core.network.errorCode
 import pl.cincior.englishreminder.di.IdentityApolloClient
 import pl.cincior.englishreminder.identity.graphql.LoginMutation

@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
-import pl.cincior.englishreminder.feature.auth.domain.repository.TokenStorage
+import pl.cincior.englishreminder.core.domain.repository.TokenStorage
 
 class AuthInterceptor(
     private val tokenStorage: TokenStorage

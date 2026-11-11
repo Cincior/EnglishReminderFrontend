@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.core.domain
+package pl.cincior.englishreminder.core.domain.model.error
 
 sealed interface WordError: RootError {
     enum class Data : WordError {
@@ -14,7 +14,8 @@ sealed interface WordError: RootError {
         WRONG_TIME_FORMAT,
         WRONG_TIME,
         FAILED_TO_SCHEDULE_NOTIFICATION,
-        UNKNOWN_ERROR
+        UNKNOWN_ERROR,
+        LOCAL_STORAGE_ERROR
     }
 
     enum class Network : WordError {

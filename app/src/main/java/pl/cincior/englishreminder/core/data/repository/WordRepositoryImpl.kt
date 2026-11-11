@@ -1,25 +1,50 @@
-package pl.cincior.englishreminder.feature.home.data.repository
+package pl.cincior.englishreminder.core.data.repository
 
 import com.apollographql.apollo.ApolloClient
-import pl.cincior.englishreminder.core.domain.Result
-import pl.cincior.englishreminder.core.domain.WordError
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import pl.cincior.englishreminder.core.domain.model.Result
+import pl.cincior.englishreminder.core.domain.model.UserWord
+import pl.cincior.englishreminder.core.domain.model.error.WordError
+import pl.cincior.englishreminder.core.domain.repository.WordRepository
 import pl.cincior.englishreminder.core.network.errorCode
 import pl.cincior.englishreminder.di.WordApolloClient
-import pl.cincior.englishreminder.feature.home.data.repository.mapper.toWordError
-import pl.cincior.englishreminder.feature.home.data.repository.mapper.toWordException
+import pl.cincior.englishreminder.core.data.repository.mapper.toWordError
+import pl.cincior.englishreminder.core.data.repository.mapper.toWordException
+import pl.cincior.englishreminder.core.room.domain.WordDAO
+import pl.cincior.englishreminder.core.room.domain.entity.WordEntity
 import pl.cincior.englishreminder.feature.home.domain.model.AddWordResult
 import pl.cincior.englishreminder.feature.home.domain.model.DeleteWordResult
 import pl.cincior.englishreminder.feature.home.domain.model.ScheduleNotificationResult
 import pl.cincior.englishreminder.feature.home.domain.model.TestWordResult
 import pl.cincior.englishreminder.feature.home.domain.model.UpdateWordResult
-import pl.cincior.englishreminder.feature.home.domain.model.UserWord
-import pl.cincior.englishreminder.feature.home.domain.repository.WordRepository
 import pl.cincior.englishreminder.words.graphql.GetUserWordsQuery
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class WordRepositoryImpl @Inject constructor(
-    @param:WordApolloClient private val apolloWordClient: ApolloClient
+    @param:WordApolloClient private val apolloWordClient: ApolloClient,
+    private val wordDAO: WordDAO
 ) : WordRepository {
+    override val userWords: Flow<Result<List<UserWord>, WordError>> = wordDAO.getAllWords()
+        .map { entities ->
+            val userWords = entities.map { entity ->
+                UserWord(
+                    id = entity.id,
+                    word = entity.word,
+                    translation = entity.translation,
+                    insertDateTime = entity.insertDateTime,
+                    memorizeChance = entity.memorizeChance
+                )
+            }
+            Result.Success(userWords)
+       }
+        .catch {
+            Result.Error(WordError.Data.LOCAL_STORAGE_ERROR)
+        }
+
     override suspend fun getUserWords(): Result<List<UserWord>, WordError> {
         val result = apolloWordClient.query(
             GetUserWordsQuery()
@@ -33,7 +58,7 @@ class WordRepositoryImpl @Inject constructor(
 
         val payload = result.data?.getUserWords ?: return Result.Error(WordError.Data.UNKNOWN_ERROR)
 
-        return Result.Success(payload.map { userWord ->
+        val userWords = payload.map { userWord ->
             UserWord(
                 id = userWord.id,
                 word = userWord.word,
@@ -41,7 +66,17 @@ class WordRepositoryImpl @Inject constructor(
                 insertDateTime = userWord.insertDateTime,
                 memorizeChance = userWord.memorizeChance.toFloat()
             )
+        }
+        wordDAO.insertWords(userWords.map { userWord ->
+            WordEntity(
+                id = userWord.id,
+                word = userWord.word,
+                translation = userWord.translation,
+                insertDateTime = userWord.insertDateTime,
+                memorizeChance = userWord.memorizeChance
+            )
         })
+        return Result.Success(userWords)
 
     }
 

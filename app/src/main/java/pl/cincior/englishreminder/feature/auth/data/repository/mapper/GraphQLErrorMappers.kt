@@ -3,7 +3,7 @@ package pl.cincior.englishreminder.feature.auth.data.repository.mapper
 import com.apollographql.apollo.exception.ApolloException
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.apollographql.apollo.exception.ApolloNetworkException
-import pl.cincior.englishreminder.core.domain.AuthError
+import pl.cincior.englishreminder.core.domain.model.error.AuthError
 
 fun String?.toAuthError(): AuthError = when (this) {
     "USER_NOT_FOUND" -> AuthError.Data.USER_NOT_FOUND

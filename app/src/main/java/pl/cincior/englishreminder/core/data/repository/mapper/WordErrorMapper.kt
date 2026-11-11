@@ -1,9 +1,9 @@
-package pl.cincior.englishreminder.feature.home.data.repository.mapper
+package pl.cincior.englishreminder.core.data.repository.mapper
 
 import com.apollographql.apollo.exception.ApolloException
 import com.apollographql.apollo.exception.ApolloHttpException
 import com.apollographql.apollo.exception.ApolloNetworkException
-import pl.cincior.englishreminder.core.domain.WordError
+import pl.cincior.englishreminder.core.domain.model.error.WordError
 
 fun String?.toWordError(): WordError = when (this) {
     "NO_WORDS_FOUND" -> WordError.Data.NO_WORDS_FOUND

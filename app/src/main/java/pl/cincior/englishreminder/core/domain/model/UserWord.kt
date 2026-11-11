@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.feature.home.domain.model
+package pl.cincior.englishreminder.core.domain.model
 
 data class UserWord(
     val id: String,

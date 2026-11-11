@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.cincior.englishreminder.feature.auth.domain.repository.AuthRepository
-import pl.cincior.englishreminder.feature.auth.domain.repository.TokenStorage
-import pl.cincior.englishreminder.core.domain.Result
+import pl.cincior.englishreminder.core.domain.repository.TokenStorage
+import pl.cincior.englishreminder.core.domain.model.Result
 import pl.cincior.englishreminder.core.presentation.UiText
 import pl.cincior.englishreminder.core.presentation.asUiText
 import javax.inject.Inject

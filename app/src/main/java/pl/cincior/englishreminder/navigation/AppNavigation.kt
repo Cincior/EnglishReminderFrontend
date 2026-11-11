@@ -15,6 +15,8 @@ import pl.cincior.englishreminder.feature.auth.presentation.reset_password.Reset
 import pl.cincior.englishreminder.feature.auth.presentation.reset_request.ResetRequestRoute
 import pl.cincior.englishreminder.feature.auth.presentation.verify.VerifyAccountRoute
 import pl.cincior.englishreminder.feature.home.presentation.HomeRoute
+import pl.cincior.englishreminder.feature.wordDetails.presentation.WordDetailsRoute
+import pl.cincior.englishreminder.feature.wordList.presentation.WordListRoute
 
 sealed class Screen(val route: String) {
     data object Login : Screen("Login")
@@ -28,6 +30,10 @@ sealed class Screen(val route: String) {
     }
     data object ResetPassword : Screen("ResetPassword?email={email}") {
         fun createRoute(email: String = "") = "ResetPassword?email=$email"
+    }
+    data object WordList : Screen("WordList")
+    data object WordDetails : Screen("WordDetails?id={id}") {
+        fun createRoute(id: String = "") = "WordDetails?id=$id"
     }
 }
 
@@ -62,7 +68,11 @@ fun AppNavigation(
 
         composable(Screen.Home.route) {
             HomeRoute(
-                onNavigateToLogin = { navController.navigate(Screen.Login.route) }
+                onNavigateToLogin = { navController.navigate(Screen.Login.route) },
+                onNavigateToWordDetails = { wordId ->
+                    navController.navigate(Screen.WordDetails.createRoute(wordId))
+                },
+                onNavigationToWordList = {navController.navigate(Screen.WordList.route)}
             )
         }
 
@@ -128,6 +138,22 @@ fun AppNavigation(
                         popUpTo(Screen.ResetPassword.route) { inclusive = true }
                     }
                 }
+            )
+        }
+
+        composable(Screen.WordList.route) {
+            WordListRoute()
+        }
+
+        composable(
+            route = Screen.WordDetails.route,
+            arguments = listOf(navArgument("id") {
+                type = NavType.StringType
+                nullable = false;
+            })
+        ) {
+            WordDetailsRoute(
+
             )
         }
     }

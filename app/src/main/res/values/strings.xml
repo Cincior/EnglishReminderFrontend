@@ -29,4 +29,5 @@
     <string name="wrong_time_format">Niepoprawny format czasu</string>
     <string name="wrong_time">Niepoprawny czas powiadomienia</string>
     <string name="failed_to_schedule_notification">Nie udało się zaplanować powiadomienia</string>
+    <string name="local_storage_error">nie udało sie załadować danych lokalnych</string>
 </resources>

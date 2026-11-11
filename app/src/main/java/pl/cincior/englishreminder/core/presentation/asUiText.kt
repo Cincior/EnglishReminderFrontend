@@ -1,8 +1,8 @@
 package pl.cincior.englishreminder.core.presentation
 
 import pl.cincior.englishreminder.R
-import pl.cincior.englishreminder.core.domain.AuthError
-import pl.cincior.englishreminder.core.domain.WordError
+import pl.cincior.englishreminder.core.domain.model.error.AuthError
+import pl.cincior.englishreminder.core.domain.model.error.WordError
 
 fun AuthError.asUiText(): UiText {
     return when (this) {
@@ -44,5 +44,6 @@ fun WordError.asUiText(): UiText {
         WordError.Network.NO_CONNECTION -> UiText.StringResource(R.string.no_connection)
         WordError.Network.SERVER_ERROR -> UiText.StringResource(R.string.server_error)
         WordError.Network.UNKNOWN -> UiText.StringResource(R.string.unknown_error)
+        WordError.Data.LOCAL_STORAGE_ERROR -> UiText.StringResource(R.string.local_storage_error)
     }
 }

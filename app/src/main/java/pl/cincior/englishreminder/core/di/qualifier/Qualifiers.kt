@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.di
+package pl.cincior.englishreminder.core.di.qualifier
 
 import javax.inject.Qualifier
 

@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.core.network
+package pl.cincior.englishreminder.core.data.network
 
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking

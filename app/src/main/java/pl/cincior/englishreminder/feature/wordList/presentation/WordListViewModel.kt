@@ -26,7 +26,7 @@ class WordListViewModel @Inject constructor(
 
     private fun subscribeUserWords() {
         viewModelScope.launch {
-            wordRepository.userWords.collect { userWords ->
+            wordRepository.getUserWords().collect { userWords ->
                 when (userWords) {
                     is Result.Success -> _uiState.update { it.copy(wordList = userWords.data, error = null) }
                     is Result.Error -> _uiState.update { it.copy(wordList = emptyList(), error = userWords.error.asUiText()) }
@@ -35,11 +35,11 @@ class WordListViewModel @Inject constructor(
         }
     }
 
-    private fun refreshWordsFromBackend() {
+    fun refreshWordsFromBackend() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            when (val result = wordRepository.getUserWords()) {
-                is Result.Success -> _uiState.update { it.copy(wordList = result.data, isLoading = false) }
+            when (val result = wordRepository.fetchUserWords()) {
+                is Result.Success -> _uiState.update { it.copy(isLoading = false) }
                 is Result.Error -> _uiState.update { it.copy(error = result.error.asUiText(), isLoading = false) }
             }
         }

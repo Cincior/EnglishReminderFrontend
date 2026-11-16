@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.di
+package pl.cincior.englishreminder.core.di.module
 
 import dagger.Binds
 import dagger.Module

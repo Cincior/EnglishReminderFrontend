@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.di
+package pl.cincior.englishreminder.core.di.module
 
 import android.content.Context
 import androidx.room.Room
@@ -7,8 +7,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import pl.cincior.englishreminder.core.room.data.WordDatabase
-import pl.cincior.englishreminder.core.room.domain.WordDAO
+import pl.cincior.englishreminder.core.data.local.room.data.WordDatabase
+import pl.cincior.englishreminder.core.data.local.room.data.dao.WordDAO
 import javax.inject.Singleton
 
 @Module

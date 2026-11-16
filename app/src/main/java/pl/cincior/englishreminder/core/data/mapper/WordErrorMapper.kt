@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.core.data.repository.mapper
+package pl.cincior.englishreminder.core.data.mapper
 
 import com.apollographql.apollo.exception.ApolloException
 import com.apollographql.apollo.exception.ApolloHttpException

@@ -1,7 +1,7 @@
 package pl.cincior.englishreminder.feature.home.presentation
 
 import pl.cincior.englishreminder.core.presentation.UiText
-import pl.cincior.englishreminder.core.domain.model.UserWord
+import pl.cincior.englishreminder.core.domain.model.word.UserWord
 
 data class HomeUiState(
     val userWords: List<UserWord> = emptyList(),

@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.core.room.domain.entity
+package pl.cincior.englishreminder.core.data.local.room.data.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

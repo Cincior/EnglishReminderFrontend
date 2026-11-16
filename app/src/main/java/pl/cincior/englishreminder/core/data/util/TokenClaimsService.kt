@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.core.data.repository
+package pl.cincior.englishreminder.core.data.util
 
 import com.auth0.android.jwt.DecodeException
 import com.auth0.android.jwt.JWT

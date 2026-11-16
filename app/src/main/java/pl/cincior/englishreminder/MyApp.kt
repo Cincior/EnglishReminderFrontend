@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.di
+package pl.cincior.englishreminder
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

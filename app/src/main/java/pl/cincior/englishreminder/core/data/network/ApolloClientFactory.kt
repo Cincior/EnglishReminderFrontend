@@ -1,4 +1,4 @@
-package pl.cincior.englishreminder.core.network
+package pl.cincior.englishreminder.core.data.network
 
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.ApolloResponse

@@ -32,8 +32,8 @@ sealed class Screen(val route: String) {
         fun createRoute(email: String = "") = "ResetPassword?email=$email"
     }
     data object WordList : Screen("WordList")
-    data object WordDetails : Screen("WordDetails?id={id}") {
-        fun createRoute(id: String = "") = "WordDetails?id=$id"
+    data object WordDetails : Screen("WordDetails/{id}") {
+        fun createRoute(id: String) = "WordDetails/$id"
     }
 }
 
@@ -68,7 +68,9 @@ fun AppNavigation(
 
         composable(Screen.Home.route) {
             HomeRoute(
-                onNavigateToLogin = { navController.navigate(Screen.Login.route) },
+                onNavigateToLogin = { navController.navigate(Screen.Login.route) {
+                    popUpTo(Screen.Home.route) {inclusive = true}
+                } },
                 onNavigateToWordDetails = { wordId ->
                     navController.navigate(Screen.WordDetails.createRoute(wordId))
                 },
@@ -142,18 +144,24 @@ fun AppNavigation(
         }
 
         composable(Screen.WordList.route) {
-            WordListRoute()
+            WordListRoute(
+                onNavigateToWordDetails = { wordId ->
+                    navController.navigate(Screen.WordDetails.createRoute(wordId))
+                },
+                onBackClick = { navController.popBackStack() }
+            )
         }
 
         composable(
             route = Screen.WordDetails.route,
-            arguments = listOf(navArgument("id") {
-                type = NavType.StringType
-                nullable = false;
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.StringType
+                    nullable = false;
             })
         ) {
             WordDetailsRoute(
-
+                onNavigationBack = {navController.navigate(Screen.WordList.route)}
             )
         }
     }

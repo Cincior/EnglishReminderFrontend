@@ -1,6 +1,6 @@
 package pl.cincior.englishreminder.feature.wordList.presentation
 
-import pl.cincior.englishreminder.core.domain.model.UserWord
+import pl.cincior.englishreminder.core.domain.model.word.UserWord
 import pl.cincior.englishreminder.core.presentation.UiText
 
 data class WordListUiState(

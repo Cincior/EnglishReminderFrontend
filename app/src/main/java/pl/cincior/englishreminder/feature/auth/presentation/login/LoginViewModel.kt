@@ -1,5 +1,6 @@
 package pl.cincior.englishreminder.feature.auth.presentation.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,6 +46,7 @@ class LoginViewModel @Inject constructor(
                 is Result.Success -> {
                     tokenStorage.saveAuthToken(result.data.jwtToken)
                     tokenStorage.saveRefreshToken(result.data.refreshToken)
+                    Log.i("token: ", result.data.jwtToken)
                     _uiState.update { it.copy(isLoading = false, isLoggedIn = true) }
                 }
                 is Result.Error -> {

@@ -43,6 +43,8 @@ input InputWordData {
   translation: String!
 
   forceDuplicate: Boolean!
+
+  category: Category!
 }
 
 type Mutation {

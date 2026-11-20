@@ -4,6 +4,7 @@ query GetUserWords {
         translation
         insertDateTime
         id
+        category
         memorizeChance
     }
 }

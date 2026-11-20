@@ -7,8 +7,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import pl.cincior.englishreminder.core.data.local.room.data.WordDatabase
-import pl.cincior.englishreminder.core.data.local.room.data.dao.WordDAO
+import pl.cincior.englishreminder.feature.words.data.local.WordDatabase
+import pl.cincior.englishreminder.feature.words.data.local.dao.WordDAO
 import javax.inject.Singleton
 
 @Module
@@ -22,7 +22,8 @@ object DatabaseModule {
             context,
             WordDatabase::class.java,
             "word_database"
-        ).build()
+        ).fallbackToDestructiveMigration(dropAllTables = true)
+            .build()
     }
 
     @Provides

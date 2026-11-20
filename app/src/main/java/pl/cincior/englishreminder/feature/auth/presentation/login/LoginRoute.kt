@@ -2,14 +2,21 @@ package pl.cincior.englishreminder.feature.auth.presentation.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -18,11 +25,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import pl.cincior.englishreminder.core.presentation.components.AppTextField
+import pl.cincior.englishreminder.core.presentation.components.ErrorCard
+import pl.cincior.englishreminder.core.presentation.components.LoadingButton
 
 @Composable
 fun LoginRoute(
@@ -61,82 +71,109 @@ fun LoginScreen(
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
             .background(MaterialTheme.colorScheme.background)
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
     ) {
         Column(
-            Modifier
-                .fillMaxSize()
-                .weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                style = (MaterialTheme.typography.headlineLarge),
-                text = "English Reminder",
-                textAlign = TextAlign.Center
-            )
-        }
-        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .weight(2f),
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+            verticalArrangement = Arrangement.Center
         ) {
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                modifier = Modifier.padding(bottom = 24.dp)
+            ) {
+                Box(
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "English Reminder",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
             Text(
-                text = "Logowanie",
-                style = MaterialTheme.typography.headlineMedium
+                text = "Zaloguj się",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            OutlinedTextField(
+            Text(
+                text = "Wpisz swoje dane, aby kontynuować naukę",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            AppTextField(
                 value = uiState.email,
                 onValueChange = onEmailChange,
-                label = { Text("Email") }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                value = uiState.password,
-                onValueChange = onPasswordChange,
-                label = { Text("Hasło") },
-                visualTransformation = PasswordVisualTransformation()
-            )
-
-            if (uiState.error != null) {
-                Text(
-                    text = uiState.error.asString(),
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 8.dp)
+                label = "Adres email",
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
                 )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = onLoginClick,
-                enabled = !uiState.isLoading
-            ) {
-                Text(if (uiState.isLoading) "Logowanie..." else "Zaloguj")
-            }
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            TextButton(
-                onClick = onForgotPasswordClick,
-                enabled = !uiState.isLoading
-            ) {
-                Text(
-                    text = "Nie pamiętasz hasła?",
-                    textDecoration = TextDecoration.Underline
+            AppTextField(
+                value = uiState.password,
+                onValueChange = onPasswordChange,
+                label = "Hasło",
+                isPassword = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
                 )
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    onClick = onForgotPasswordClick,
+                    enabled = !uiState.isLoading
+                ) {
+                    Text(
+                        text = "Nie pamiętasz hasła?",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
+
+            if (uiState.error != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                ErrorCard(error = uiState.error)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LoadingButton(
+                text = "Zaloguj się",
+                onClick = onLoginClick,
+                isLoading = uiState.isLoading
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             TextButton(
                 onClick = onRegisterClick,
@@ -144,7 +181,7 @@ fun LoginScreen(
             ) {
                 Text(
                     text = "Nie masz konta? Zarejestruj się",
-                    textDecoration = TextDecoration.Underline
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 
@@ -153,8 +190,9 @@ fun LoginScreen(
                 enabled = !uiState.isLoading
             ) {
                 Text(
-                    text = "Nie zweryfikowałeś konta? Zrób to teraz",
-                    textDecoration = TextDecoration.Underline
+                    text = "Masz kod weryfikacyjny? Zweryfikuj konto",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

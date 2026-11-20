@@ -14,9 +14,10 @@ import pl.cincior.englishreminder.feature.auth.presentation.register.RegisterRou
 import pl.cincior.englishreminder.feature.auth.presentation.reset_password.ResetPasswordRoute
 import pl.cincior.englishreminder.feature.auth.presentation.reset_request.ResetRequestRoute
 import pl.cincior.englishreminder.feature.auth.presentation.verify.VerifyAccountRoute
-import pl.cincior.englishreminder.feature.home.presentation.HomeRoute
-import pl.cincior.englishreminder.feature.wordDetails.presentation.WordDetailsRoute
-import pl.cincior.englishreminder.feature.wordList.presentation.WordListRoute
+import pl.cincior.englishreminder.feature.words.presentation.add.AddWordRoute
+import pl.cincior.englishreminder.feature.words.presentation.details.WordDetailsRoute
+import pl.cincior.englishreminder.feature.words.presentation.home.HomeRoute
+import pl.cincior.englishreminder.feature.words.presentation.list.WordListRoute
 
 sealed class Screen(val route: String) {
     data object Login : Screen("Login")
@@ -35,6 +36,7 @@ sealed class Screen(val route: String) {
     data object WordDetails : Screen("WordDetails/{id}") {
         fun createRoute(id: String) = "WordDetails/$id"
     }
+    data object WordAdd : Screen("AddWord")
 }
 
 @Composable
@@ -69,12 +71,13 @@ fun AppNavigation(
         composable(Screen.Home.route) {
             HomeRoute(
                 onNavigateToLogin = { navController.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Home.route) {inclusive = true}
+                    popUpTo(Screen.Home.route) { inclusive = true }
                 } },
                 onNavigateToWordDetails = { wordId ->
                     navController.navigate(Screen.WordDetails.createRoute(wordId))
                 },
-                onNavigationToWordList = {navController.navigate(Screen.WordList.route)}
+                onNavigationToWordList = { navController.navigate(Screen.WordList.route) },
+                onNavigationToAddWord = { navController.navigate(Screen.WordAdd.route) }
             )
         }
 
@@ -157,11 +160,18 @@ fun AppNavigation(
             arguments = listOf(
                 navArgument("id") {
                     type = NavType.StringType
-                    nullable = false;
-            })
+                    nullable = false
+                }
+            )
         ) {
             WordDetailsRoute(
-                onNavigationBack = {navController.navigate(Screen.WordList.route)}
+                onNavigationBack = { navController.navigate(Screen.WordList.route) }
+            )
+        }
+
+        composable(Screen.WordAdd.route) {
+            AddWordRoute(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

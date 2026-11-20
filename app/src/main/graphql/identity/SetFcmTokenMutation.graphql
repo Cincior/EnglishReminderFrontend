@@ -1,0 +1,3 @@
+mutation setInstallationId($installationId: String!) {
+    setInstallationId(installationId: $installationId)
+}

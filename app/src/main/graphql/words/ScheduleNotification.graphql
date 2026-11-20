@@ -1,0 +1,5 @@
+mutation ScheduleNotification($wordId: ID!, $scheduleTime: String!) {
+    scheduleNotification(input: { wordId: $wordId, scheduleTime: $scheduleTime }) {
+        wordId
+    }
+}

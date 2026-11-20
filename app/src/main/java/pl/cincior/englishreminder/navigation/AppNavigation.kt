@@ -151,7 +151,11 @@ fun AppNavigation(
                 onNavigateToWordDetails = { wordId ->
                     navController.navigate(Screen.WordDetails.createRoute(wordId))
                 },
-                onBackClick = { navController.popBackStack() }
+                onBackClick = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.WordList.route) { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -165,7 +169,7 @@ fun AppNavigation(
             )
         ) {
             WordDetailsRoute(
-                onNavigationBack = { navController.navigate(Screen.WordList.route) }
+                onNavigationBack = { navController.navigate(Screen.WordList.route) {} }
             )
         }
 

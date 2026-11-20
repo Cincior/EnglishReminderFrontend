@@ -1,0 +1,7 @@
+mutation UpdateWord($wordId: ID!, $word: String!, $translation: String!) {
+    updateWord(input: { wordId: $wordId, word: $word, translation: $translation }) {
+        wordId
+        word
+        translation
+    }
+}

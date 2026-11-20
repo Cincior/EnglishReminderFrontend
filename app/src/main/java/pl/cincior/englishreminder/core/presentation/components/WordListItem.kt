@@ -34,7 +34,7 @@ fun WordListItem(
     translation: String,
     memorizeChance: Float,
     onNavigateToWordDetails: (String) -> Unit,
-    showTranslation: Boolean = true
+    showTranslation: Boolean = false
 ) {
     Card(
         modifier = Modifier

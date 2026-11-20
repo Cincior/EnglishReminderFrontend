@@ -22,9 +22,12 @@ import pl.cincior.englishreminder.feature.words.domain.model.UserWord
 import pl.cincior.englishreminder.feature.words.domain.model.WordCategory
 import pl.cincior.englishreminder.feature.words.domain.repository.WordRepository
 import pl.cincior.englishreminder.words.graphql.AddWordMutation
+import pl.cincior.englishreminder.words.graphql.DeleteWordMutation
 import pl.cincior.englishreminder.words.graphql.GetUserWordsQuery
 import pl.cincior.englishreminder.words.graphql.ScheduleNotificationMutation
 import pl.cincior.englishreminder.words.graphql.SetCategoryMutation
+import pl.cincior.englishreminder.words.graphql.TestWordMutation
+import pl.cincior.englishreminder.words.graphql.UpdateWordMutation
 import pl.cincior.englishreminder.words.graphql.type.Category
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -167,6 +170,7 @@ class WordRepositoryImpl @Inject constructor(
             return Result.Error(response.errorCode().toWordError())
         }
 
+        wordDAO.updateCategory(wordId, category.name)
         return Result.Success(Unit)
     }
 
@@ -200,18 +204,81 @@ class WordRepositoryImpl @Inject constructor(
         newWord: String,
         newTranslation: String
     ): Result<UpdateWordResult, WordError> {
-        TODO("Not yet implemented")
+        val response = apolloWordClient.mutation(
+            UpdateWordMutation(
+                wordId = wordId,
+                word = newWord,
+                translation = newTranslation
+            )
+        ).execute()
+
+        response.exception?.let { return Result.Error(it.toWordException()) }
+        if (response.hasErrors()) {
+            return Result.Error(response.errorCode().toWordError())
+        }
+
+        val payload = response.data?.updateWord ?: return Result.Error(WordError.Data.UNKNOWN_ERROR)
+
+        wordDAO.updateWord(wordId, payload.word, payload.translation)
+
+        return Result.Success(
+            UpdateWordResult(
+                id = payload.wordId,
+                word = payload.word,
+                translation = payload.translation
+            )
+        )
     }
 
     override suspend fun deleteWord(wordId: String): Result<DeleteWordResult, WordError> {
-        TODO("Not yet implemented")
+        val response = apolloWordClient.mutation(
+            DeleteWordMutation(wordId = wordId)
+        ).execute()
+
+        response.exception?.let { return Result.Error(it.toWordException()) }
+        if (response.hasErrors()) {
+            return Result.Error(response.errorCode().toWordError())
+        }
+
+        val payload = response.data?.deleteWord ?: return Result.Error(WordError.Data.UNKNOWN_ERROR)
+
+        if (payload.deleted) {
+            wordDAO.deleteWordById(wordId)
+        }
+
+        return Result.Success(
+            DeleteWordResult(
+                id = payload.wordId,
+                deleted = payload.deleted
+            )
+        )
     }
 
     override suspend fun testWord(
         wordId: String,
         translation: String
     ): Result<TestWordResult, WordError> {
-        TODO("Not yet implemented")
+        val response = apolloWordClient.mutation(
+            TestWordMutation(
+                wordId = wordId,
+                translation = translation
+            )
+        ).execute()
+
+        response.exception?.let { return Result.Error(it.toWordException()) }
+        if (response.hasErrors()) {
+            return Result.Error(response.errorCode().toWordError())
+        }
+
+        val payload = response.data?.testWord ?: return Result.Error(WordError.Data.UNKNOWN_ERROR)
+
+        return Result.Success(
+            TestWordResult(
+                id = payload.wordId,
+                isCorrect = payload.isCorrect,
+                testTime = payload.testTime
+            )
+        )
     }
 
     private fun Category.toWordCategory(): WordCategory = when (this) {

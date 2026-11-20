@@ -1,5 +1,6 @@
 package pl.cincior.englishreminder.feature.words.presentation.add
 
+import pl.cincior.englishreminder.core.domain.model.DateTime
 import pl.cincior.englishreminder.core.presentation.UiText
 import pl.cincior.englishreminder.feature.words.domain.model.WordCategory
 
@@ -16,10 +17,4 @@ data class AddWordUiState(
     val isTimeSelected: Boolean = false,
     val scheduleDateTime: DateTime = DateTime(),
     val error: UiText? = null
-)
-
-data class DateTime (
-    val date: Long = 0,
-    val hour: Int = 12,
-    val minute: Int = 0
 )

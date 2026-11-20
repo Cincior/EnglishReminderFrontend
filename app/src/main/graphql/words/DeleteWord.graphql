@@ -1,0 +1,6 @@
+mutation DeleteWord($wordId: ID!) {
+    deleteWord(wordId: $wordId) {
+        deleted
+        wordId
+    }
+}

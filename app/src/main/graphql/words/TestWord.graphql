@@ -1,0 +1,7 @@
+mutation TestWord($wordId: ID!, $translation: String!) {
+    testWord(wordId: $wordId, translation: $translation) {
+        wordId
+        isCorrect
+        testTime
+    }
+}

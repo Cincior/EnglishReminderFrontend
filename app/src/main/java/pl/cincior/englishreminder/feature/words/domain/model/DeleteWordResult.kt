@@ -1,5 +1,6 @@
 package pl.cincior.englishreminder.feature.words.domain.model
 
 data class DeleteWordResult(
-    val id: String
+    val id: String,
+    val deleted: Boolean
 )

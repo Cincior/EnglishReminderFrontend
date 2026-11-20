@@ -7,24 +7,24 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import pl.cincior.englishreminder.core.domain.repository.FcmRepository
+import pl.cincior.englishreminder.core.domain.repository.InstallationIdRepository
 
 @HiltWorker
 class FcmRegistrationWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
-    private val fcmRepository: FcmRepository
+    private val installationIdRepository: InstallationIdRepository
 ) : CoroutineWorker(appContext, workerParameters) {
     override suspend fun doWork(): Result {
         val token = inputData.getString(TOKEN_KEY) ?: return Result.failure()
         Log.i("Wysyłam z workera doWork", token)
 
-        return if (fcmRepository.saveFcmToken(token)) {
+        return if (installationIdRepository.saveInstallationId(token)) {
             Result.success()
         } else if (runAttemptCount < MAX_ATTEMPTS - 1) {
             Result.retry()
         } else {
-            fcmRepository.clearFcmToken()
+            installationIdRepository.clearInstallationId()
             Result.success()
         }
     }

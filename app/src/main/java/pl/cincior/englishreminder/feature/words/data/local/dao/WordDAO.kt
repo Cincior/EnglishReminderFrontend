@@ -17,4 +17,13 @@ interface WordDAO {
 
     @Query("SELECT * FROM words WHERE id = :wordId")
     fun getWordById(wordId: String): Flow<WordEntity?>
+
+    @Query("UPDATE words SET word = :word, translation = :translation WHERE id = :wordId")
+    suspend fun updateWord(wordId: String, word: String, translation: String)
+
+    @Query("UPDATE words SET category = :category WHERE id = :wordId")
+    suspend fun updateCategory(wordId: String, category: String)
+
+    @Query("DELETE FROM words WHERE id = :wordId")
+    suspend fun deleteWordById(wordId: String)
 }

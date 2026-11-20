@@ -13,8 +13,6 @@ import pl.cincior.englishreminder.core.presentation.UiText
 import pl.cincior.englishreminder.core.presentation.asUiText
 import pl.cincior.englishreminder.feature.words.domain.model.WordCategory
 import pl.cincior.englishreminder.feature.words.domain.repository.WordRepository
-import java.time.Instant
-import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
@@ -83,7 +81,7 @@ class AddWordViewModel @Inject constructor(
                             when (
                                 val notificationResult = wordRepository.scheduleNotification(
                                     wordId = wordData.wordId,
-                                    scheduleTime = convertDateTimeToISO(currentState.scheduleDateTime))
+                                    scheduleTime = currentState.scheduleDateTime.toISOString())
                             ) {
                                 is Result.Success -> {
                                     wordRepository.fetchUserWords()
@@ -129,16 +127,5 @@ class AddWordViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun convertDateTimeToISO(scheduleDateTime: DateTime): String {
-        val zone = ZoneId.of("Europe/Warsaw")
-        return Instant.ofEpochMilli(scheduleDateTime.date)
-            .atZone(zone)
-            .toLocalDate()
-            .atTime(scheduleDateTime.hour, scheduleDateTime.minute)
-            .atZone(zone)
-            .toInstant()
-            .toString()
     }
 }

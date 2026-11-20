@@ -16,9 +16,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,12 +25,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimeInput
-import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,32 +43,21 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import pl.cincior.englishreminder.core.presentation.components.AppTextField
 import pl.cincior.englishreminder.core.presentation.components.ErrorCard
 import pl.cincior.englishreminder.core.presentation.components.LoadingButton
+import pl.cincior.englishreminder.core.presentation.components.NotificationDateTimePicker
 import pl.cincior.englishreminder.feature.words.domain.model.WordCategory
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddWordRoute(
     onNavigateBack: () -> Unit,
     viewModel: AddWordViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
-    val timeState = rememberTimePickerState()
 
     LaunchedEffect(uiState.isWordAdded) {
         if (uiState.isWordAdded && uiState.isNotificationCreated) {
             onNavigateBack()
         }
     }
-
-    LaunchedEffect(dateState.selectedDateMillis) {
-        viewModel.onScheduleDateChanged(dateState.selectedDateMillis)
-    }
-
-    LaunchedEffect(timeState.hour, timeState.minute) {
-        viewModel.onScheduleTimeChanged(timeState.hour, timeState.minute)
-    }
-
 
     AddWordScreen(
         uiState = uiState,
@@ -85,9 +67,9 @@ fun AddWordRoute(
         onForceDuplicateChange = viewModel::onForceDuplicateChanged,
         onCategorySelect = viewModel::onCategorySelected,
         onScheduleNotificationChange = viewModel::onScheduleNotificationChanged,
-        onAddWordClick = viewModel::addWord,
-        dateState = dateState,
-        timeState = timeState
+        onScheduleDateChanged = viewModel::onScheduleDateChanged,
+        onScheduleTimeChanged = viewModel::onScheduleTimeChanged,
+        onAddWordClick = viewModel::addWord
     )
 }
 
@@ -101,9 +83,9 @@ fun AddWordScreen(
     onForceDuplicateChange: (Boolean) -> Unit,
     onCategorySelect: (WordCategory) -> Unit,
     onScheduleNotificationChange: (Boolean) -> Unit,
-    onAddWordClick: () -> Unit,
-    dateState: DatePickerState,
-    timeState: TimePickerState
+    onScheduleDateChanged: (Long?) -> Unit,
+    onScheduleTimeChanged: (hour: Int, minute: Int) -> Unit,
+    onAddWordClick: () -> Unit
 ) {
     var categoryDropdownExpanded by remember { mutableStateOf(false) }
 
@@ -266,17 +248,11 @@ fun AddWordScreen(
                     }
 
                     if (uiState.scheduleNotification) {
-
-                        TimeInput(
-                            state = timeState,
+                        NotificationDateTimePicker(
+                            dateTime = uiState.scheduleDateTime,
+                            onDateChanged = onScheduleDateChanged,
+                            onTimeChanged = onScheduleTimeChanged
                         )
-                        DatePicker(state = dateState)
-//                        AppTextField(
-//                            value = uiState.scheduleTime,
-//                            onValueChange = onScheduleTimeChange,
-//                            label = "Godzina/Czas powiadomienia (np. 10:00)",
-//                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-//                        )
                     }
                 }
             }

@@ -2,6 +2,7 @@ package pl.cincior.englishreminder.core.presentation.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +29,7 @@ fun AppTextField(
     isPassword: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -61,6 +63,7 @@ fun AppTextField(
         shape = RoundedCornerShape(12.dp),
         visualTransformation = effectiveVisualTransformation,
         keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         trailingIcon = effectiveTrailingIcon,
         modifier = modifier.fillMaxWidth()
     )

@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pl.cincior.englishreminder.core.data.network.ApolloClientFactory
 import pl.cincior.englishreminder.core.di.qualifier.IdentityApolloClient
+import pl.cincior.englishreminder.core.di.qualifier.IdentityAuthorizedApolloClient
 import pl.cincior.englishreminder.core.di.qualifier.WordApolloClient
 import javax.inject.Singleton
 
@@ -21,6 +22,15 @@ object NetworkModule {
         apolloClientFactory: ApolloClientFactory
     ) : ApolloClient {
         return apolloClientFactory.createPublicApolloClient("http://10.0.2.2:8080/graphql/IdentityService")
+    }
+
+    @IdentityAuthorizedApolloClient
+    @Provides
+    @Singleton
+    fun provideAuthorizedApolloIdentityClient(
+        apolloClientFactory: ApolloClientFactory
+    ) : ApolloClient {
+        return apolloClientFactory.createAuthorizedApolloClient("http://10.0.2.2:8080/graphql/IdentityService")
     }
 
     @WordApolloClient

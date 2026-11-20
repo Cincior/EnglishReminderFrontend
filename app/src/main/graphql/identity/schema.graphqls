@@ -27,6 +27,8 @@ type Mutation {
   resetPassword(resetPasswordData: ResetPasswordData!): ResetPasswordPayload!
 
   logout(refreshToken: String!): LogoutPayload!
+
+  setInstallationId(installationId: String!): Boolean
 }
 
 input NewUserData {

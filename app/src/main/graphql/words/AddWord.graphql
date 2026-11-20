@@ -1,5 +1,5 @@
-mutation AddWord($word: String!, $translation: String!, $forceDuplicate: Boolean!) {
-    addWord(input: { word: $word, translation: $translation, forceDuplicate: $forceDuplicate }) {
+mutation AddWord($word: String!, $translation: String!, $forceDuplicate: Boolean!, $category: Category!) {
+    addWord(input: { word: $word, translation: $translation, forceDuplicate: $forceDuplicate, category: $category }) {
         created
         wordId
         existingWordId

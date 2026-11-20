@@ -5,12 +5,12 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.network.okHttpClient
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import pl.cincior.englishreminder.core.domain.repository.TokenStorage
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ApolloClientFactory @Inject constructor(
-    private val tokenStorage: TokenStorage
+    private val tokenRefreshInterceptor: TokenRefreshInterceptor,
+    private val authInterceptor: AuthInterceptor
 ) {
 
     private fun createBaseOkHttpClientBuilder(): OkHttpClient.Builder {
@@ -20,9 +20,9 @@ class ApolloClientFactory @Inject constructor(
 
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
     }
 
     fun createPublicApolloClient(serverUrl: String): ApolloClient {
@@ -36,7 +36,8 @@ class ApolloClientFactory @Inject constructor(
 
     fun createAuthorizedApolloClient(serverUrl: String): ApolloClient {
         val okHttpClient = createBaseOkHttpClientBuilder()
-            .addInterceptor(AuthInterceptor(tokenStorage))
+            .addInterceptor(authInterceptor)
+            .addInterceptor(tokenRefreshInterceptor)
             .build()
 
         return ApolloClient.Builder()

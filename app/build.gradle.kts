@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.apollo)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    id("com.google.gms.google-services")
 }
 
 apollo {
@@ -24,7 +25,7 @@ apollo {
         introspection {
             endpointUrl.set("http://localhost:8080/graphql/wordService")
             schemaFile.set(file("src/main/graphql/words/schema.graphqls"))
-            headers.put("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhMjdlZTlhNy01M2U3LTRlMmMtODI0Zi1mNTRhYmJjYjRjYjEiLCJpYXQiOjE3OTM5NjI4ODEsImV4cCI6MTc5Mzk2NDY4MSwicm9sZSI6IlVTRVIifQ.XvR8etDBoONTW16RQD20g6JMnTsavrVG2_npD2UEJU8")
+            headers.put("Authorization", "Bearer ")
         }
     }
 }
@@ -87,8 +88,14 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.jwtdecode)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.analytics)
+    ksp(libs.androidx.hilt.compiler)
 }

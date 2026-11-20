@@ -3,6 +3,7 @@ package pl.cincior.englishreminder.feature.auth.data.repository
 import android.util.Log
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.exception.ApolloException
+import com.google.firebase.messaging.FirebaseMessaging
 import pl.cincior.englishreminder.feature.auth.data.repository.mapper.toAuthError
 import pl.cincior.englishreminder.feature.auth.data.repository.mapper.toAuthNetworkError
 import pl.cincior.englishreminder.feature.auth.domain.model.AuthToken
@@ -45,6 +46,7 @@ class AuthRepositoryImpl @Inject constructor(
 
             val payload = response.data?.login ?: return Result.Error(AuthError.Data.UNKNOWN_ERROR)
 
+            FirebaseMessaging.getInstance().register()
             return Result.Success(AuthToken(payload.token, payload.refreshToken))
         } catch (_: ApolloException) {
             return Result.Error(AuthError.Network.NETWORK_ERROR)

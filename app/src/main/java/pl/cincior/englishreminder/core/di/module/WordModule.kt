@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import pl.cincior.englishreminder.core.data.repository.WordRepositoryImpl
-import pl.cincior.englishreminder.core.domain.repository.WordRepository
+import pl.cincior.englishreminder.feature.words.data.repository.WordRepositoryImpl
+import pl.cincior.englishreminder.feature.words.domain.repository.WordRepository
 import javax.inject.Singleton
 
 @Module

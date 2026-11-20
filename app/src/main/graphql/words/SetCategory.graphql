@@ -1,0 +1,6 @@
+mutation SetCategory($wordId: ID!, $category: Category!) {
+    setCategory(setCategoryInput: { wordId: $wordId, category: $category }) {
+        wordId
+        category
+    }
+}

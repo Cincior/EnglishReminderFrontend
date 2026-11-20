@@ -9,3 +9,7 @@ annotation class IdentityApolloClient
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class WordApolloClient
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class IdentityAuthorizedApolloClient

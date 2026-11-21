@@ -169,7 +169,7 @@ fun AppNavigation(
             )
         ) {
             WordDetailsRoute(
-                onNavigationBack = { navController.navigate(Screen.WordList.route) {} }
+                onNavigationBack = { navController.popBackStack() }
             )
         }
 

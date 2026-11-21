@@ -45,8 +45,10 @@ class WordDetailsViewModel @Inject constructor(
                                 word = result.data,
                                 isLoading = false,
                                 error = null,
-                                editWord = state.editWord.ifEmpty { result.data.word },
-                                editTranslation = state.editTranslation.ifEmpty { result.data.translation }
+                                editState = state.editState.copy(
+                                    word = state.editState.word.ifEmpty { result.data.word },
+                                    translation = state.editState.translation.ifEmpty { result.data.translation }
+                                )
                             )
                         }
                     }
@@ -77,35 +79,40 @@ class WordDetailsViewModel @Inject constructor(
         }
     }
 
+    // --- TEST WORD ACTIONS ---
     fun onTestAnswerChanged(answer: String) {
-        _uiState.update { it.copy(testAnswer = answer, testError = null) }
+        _uiState.update { it.copy(testState = it.testState.copy(answer = answer, error = null)) }
     }
 
     fun testWord() {
         val currentWord = _uiState.value.word ?: return
-        val answer = _uiState.value.testAnswer
+        val answer = _uiState.value.testState.answer
         if (answer.isBlank()) {
-            _uiState.update { it.copy(testError = UiText.DynamicString("Wpisz odpowiedź przed sprawdzeniem")) }
+            _uiState.update { it.copy(testState = it.testState.copy(error = UiText.DynamicString("Wpisz odpowiedź przed sprawdzeniem"))) }
             return
         }
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isTesting = true, testError = null, testResult = null) }
+            _uiState.update { it.copy(testState = it.testState.copy(isTesting = true, error = null, result = null)) }
             when (val result = wordRepository.testWord(currentWord.id, answer.trim())) {
                 is Result.Success -> {
                     _uiState.update {
                         it.copy(
-                            isTesting = false,
-                            testResult = result.data,
-                            testError = null
+                            testState = it.testState.copy(
+                                isTesting = false,
+                                result = result.data,
+                                error = null
+                            )
                         )
                     }
                 }
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
-                            isTesting = false,
-                            testError = result.error.asUiText()
+                            testState = it.testState.copy(
+                                isTesting = false,
+                                error = result.error.asUiText()
+                            )
                         )
                     }
                 }
@@ -113,12 +120,15 @@ class WordDetailsViewModel @Inject constructor(
         }
     }
 
+    // --- NOTIFICATION ACTIONS ---
     fun onToggleNotificationPicker(show: Boolean) {
         _uiState.update {
             it.copy(
-                showNotificationPicker = show,
-                notificationError = null,
-                notificationSuccessMessage = null
+                notificationState = it.notificationState.copy(
+                    showPicker = show,
+                    error = null,
+                    successMessage = null
+                )
             )
         }
     }
@@ -126,26 +136,36 @@ class WordDetailsViewModel @Inject constructor(
     fun onScheduleDateChanged(dateMillis: Long?) {
         if (dateMillis == null) return
         _uiState.update {
-            it.copy(scheduleDateTime = it.scheduleDateTime.copy(date = dateMillis))
+            it.copy(
+                notificationState = it.notificationState.copy(
+                    dateTime = it.notificationState.dateTime.copy(date = dateMillis)
+                )
+            )
         }
     }
 
     fun onScheduleTimeChanged(hour: Int, minute: Int) {
         _uiState.update {
-            it.copy(scheduleDateTime = it.scheduleDateTime.copy(hour = hour, minute = minute))
+            it.copy(
+                notificationState = it.notificationState.copy(
+                    dateTime = it.notificationState.dateTime.copy(hour = hour, minute = minute)
+                )
+            )
         }
     }
 
     fun scheduleNotification() {
         val currentWord = _uiState.value.word ?: return
-        val scheduleDateTime = _uiState.value.scheduleDateTime
+        val scheduleDateTime = _uiState.value.notificationState.dateTime
 
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
-                    isSchedulingNotification = true,
-                    notificationError = null,
-                    notificationSuccessMessage = null
+                    notificationState = it.notificationState.copy(
+                        isScheduling = true,
+                        error = null,
+                        successMessage = null
+                    )
                 )
             }
             val result = wordRepository.scheduleNotification(
@@ -156,20 +176,24 @@ class WordDetailsViewModel @Inject constructor(
                 is Result.Success -> {
                     _uiState.update {
                         it.copy(
-                            isSchedulingNotification = false,
-                            showNotificationPicker = false,
-                            notificationSuccessMessage = UiText.DynamicString(
-                                "Zaplanowano powiadomienie na ${scheduleDateTime.toFormattedString()}!"
-                            ),
-                            notificationError = null
+                            notificationState = it.notificationState.copy(
+                                isScheduling = false,
+                                showPicker = false,
+                                successMessage = UiText.DynamicString(
+                                    "Zaplanowano powiadomienie na ${scheduleDateTime.toFormattedString()}!"
+                                ),
+                                error = null
+                            )
                         )
                     }
                 }
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
-                            isSchedulingNotification = false,
-                            notificationError = result.error.asUiText()
+                            notificationState = it.notificationState.copy(
+                                isScheduling = false,
+                                error = result.error.asUiText()
+                            )
                         )
                     }
                 }
@@ -177,55 +201,62 @@ class WordDetailsViewModel @Inject constructor(
         }
     }
 
+    // --- EDIT WORD ACTIONS ---
     fun onShowEditDialog(show: Boolean) {
         val currentWord = _uiState.value.word
         _uiState.update {
             it.copy(
-                showEditDialog = show,
-                editWord = currentWord?.word ?: "",
-                editTranslation = currentWord?.translation ?: "",
-                editError = null
+                editState = it.editState.copy(
+                    showDialog = show,
+                    word = currentWord?.word ?: "",
+                    translation = currentWord?.translation ?: "",
+                    error = null
+                )
             )
         }
     }
 
     fun onEditWordChanged(word: String) {
-        _uiState.update { it.copy(editWord = word, editError = null) }
+        _uiState.update { it.copy(editState = it.editState.copy(word = word, error = null)) }
     }
 
     fun onEditTranslationChanged(translation: String) {
-        _uiState.update { it.copy(editTranslation = translation, editError = null) }
+        _uiState.update { it.copy(editState = it.editState.copy(translation = translation, error = null)) }
     }
 
     fun updateWord() {
         val currentWord = _uiState.value.word ?: return
-        val newWord = _uiState.value.editWord.trim()
-        val newTranslation = _uiState.value.editTranslation.trim()
+        val newWord = _uiState.value.editState.word.trim()
+        val newTranslation = _uiState.value.editState.translation.trim()
 
         if (newWord.isBlank() || newTranslation.isBlank()) {
-            _uiState.update { it.copy(editError = UiText.DynamicString("Wypełnij słówko i tłumaczenie")) }
+            _uiState.update { it.copy(editState = it.editState.copy(error = UiText.DynamicString("Wypełnij słówko i tłumaczenie"))) }
             return
         }
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isUpdating = true, editError = null) }
+            _uiState.update { it.copy(editState = it.editState.copy(isUpdating = true, error = null)) }
             val result = wordRepository.updateWord(currentWord.id, newWord, newTranslation)
             when (result) {
                 is Result.Success -> {
                     _uiState.update {
                         it.copy(
-                            isUpdating = false,
-                            showEditDialog = false,
-                            editError = null,
-                            successMessage = UiText.DynamicString("Słówko zostało pomyślnie zaktualizowane")
+                            successMessage = UiText.DynamicString("Słówko zostało pomyślnie zaktualizowane"),
+                            editState = it.editState.copy(
+                                isUpdating = false,
+                                showDialog = false,
+                                error = null
+                            )
                         )
                     }
                 }
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
-                            isUpdating = false,
-                            editError = result.error.asUiText()
+                            editState = it.editState.copy(
+                                isUpdating = false,
+                                error = result.error.asUiText()
+                            )
                         )
                     }
                 }
@@ -233,30 +264,35 @@ class WordDetailsViewModel @Inject constructor(
         }
     }
 
+    // --- DELETE WORD ACTIONS ---
     fun onShowDeleteConfirmation(show: Boolean) {
-        _uiState.update { it.copy(showDeleteConfirmation = show) }
+        _uiState.update { it.copy(deleteState = it.deleteState.copy(showConfirmation = show)) }
     }
 
     fun deleteWord() {
         val currentWord = _uiState.value.word ?: return
         viewModelScope.launch {
-            _uiState.update { it.copy(isDeleting = true, error = null) }
+            _uiState.update { it.copy(deleteState = it.deleteState.copy(isDeleting = true), error = null) }
             val result = wordRepository.deleteWord(currentWord.id)
             when (result) {
                 is Result.Success -> {
                     _uiState.update {
                         it.copy(
-                            isDeleting = false,
-                            showDeleteConfirmation = false,
-                            isDeleted = true
+                            deleteState = it.deleteState.copy(
+                                isDeleting = false,
+                                showConfirmation = false,
+                                isDeleted = true
+                            )
                         )
                     }
                 }
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
-                            isDeleting = false,
-                            showDeleteConfirmation = false,
+                            deleteState = it.deleteState.copy(
+                                isDeleting = false,
+                                showConfirmation = false
+                            ),
                             error = result.error.asUiText()
                         )
                     }
@@ -266,6 +302,11 @@ class WordDetailsViewModel @Inject constructor(
     }
 
     fun clearSuccessMessage() {
-        _uiState.update { it.copy(successMessage = null, notificationSuccessMessage = null) }
+        _uiState.update {
+            it.copy(
+                successMessage = null,
+                notificationState = it.notificationState.copy(successMessage = null)
+            )
+        }
     }
 }

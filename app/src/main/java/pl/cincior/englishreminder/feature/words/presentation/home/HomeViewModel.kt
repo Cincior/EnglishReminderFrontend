@@ -16,6 +16,7 @@ import pl.cincior.englishreminder.core.domain.repository.TokenStorage
 import pl.cincior.englishreminder.core.presentation.asUiText
 import pl.cincior.englishreminder.feature.words.domain.repository.WordRepository
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -48,7 +49,7 @@ class HomeViewModel @Inject constructor(
     fun refreshWordsFromBackend() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            val result = withTimeoutOrNull(10_000L) {
+            val result = withTimeoutOrNull(10_000L.milliseconds) {
                 wordRepository.fetchUserWords()
             }
 

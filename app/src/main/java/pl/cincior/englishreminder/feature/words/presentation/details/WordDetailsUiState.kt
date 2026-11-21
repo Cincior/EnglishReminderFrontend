@@ -12,28 +12,37 @@ data class WordDetailsUiState(
     val error: UiText? = null,
     val successMessage: UiText? = null,
 
-    // Test Word ("Sprawdź się")
-    val testAnswer: String = "",
+    val testState: TestWordState = TestWordState(),
+    val notificationState: NotificationState = NotificationState(),
+    val editState: EditWordState = EditWordState(),
+    val deleteState: DeleteWordState = DeleteWordState()
+)
+
+data class TestWordState(
+    val answer: String = "",
     val isTesting: Boolean = false,
-    val testResult: TestWordResult? = null,
-    val testError: UiText? = null,
+    val result: TestWordResult? = null,
+    val error: UiText? = null
+)
 
-    // Notification Scheduling
-    val showNotificationPicker: Boolean = false,
-    val scheduleDateTime: DateTime = DateTime(),
-    val isSchedulingNotification: Boolean = false,
-    val notificationSuccessMessage: UiText? = null,
-    val notificationError: UiText? = null,
+data class NotificationState(
+    val showPicker: Boolean = false,
+    val dateTime: DateTime = DateTime(),
+    val isScheduling: Boolean = false,
+    val successMessage: UiText? = null,
+    val error: UiText? = null
+)
 
-    // Editing Word
-    val showEditDialog: Boolean = false,
-    val editWord: String = "",
-    val editTranslation: String = "",
+data class EditWordState(
+    val showDialog: Boolean = false,
+    val word: String = "",
+    val translation: String = "",
     val isUpdating: Boolean = false,
-    val editError: UiText? = null,
+    val error: UiText? = null
+)
 
-    // Deleting Word
-    val showDeleteConfirmation: Boolean = false,
+data class DeleteWordState(
+    val showConfirmation: Boolean = false,
     val isDeleting: Boolean = false,
     val isDeleted: Boolean = false
 )

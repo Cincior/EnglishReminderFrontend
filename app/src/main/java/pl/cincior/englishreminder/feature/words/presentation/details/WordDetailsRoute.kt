@@ -62,8 +62,8 @@ fun WordDetailsRoute(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.isDeleted) {
-        if (uiState.isDeleted) {
+    LaunchedEffect(uiState.deleteState.isDeleted) {
+        if (uiState.deleteState.isDeleted) {
             onNavigationBack()
         }
     }
@@ -110,6 +110,11 @@ fun WordDetailsScreen(
 ) {
     var categoryDropdownExpanded by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    val testState = uiState.testState
+    val notificationState = uiState.notificationState
+    val editState = uiState.editState
+    val deleteState = uiState.deleteState
 
     Scaffold(
         topBar = {
@@ -192,7 +197,7 @@ fun WordDetailsScreen(
                 }
             }
 
-            if (uiState.notificationSuccessMessage != null) {
+            if (notificationState.successMessage != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -201,7 +206,7 @@ fun WordDetailsScreen(
                     )
                 ) {
                     Text(
-                        text = uiState.notificationSuccessMessage.asString(),
+                        text = notificationState.successMessage.asString(),
                         modifier = Modifier.padding(14.dp),
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                         style = MaterialTheme.typography.bodyMedium,
@@ -245,7 +250,7 @@ fun WordDetailsScreen(
                                 )
                             } else {
                                 Text(
-                                    text = "Tłumaczenie: ---",
+                                    text = "Tłumaczenie: ••••••••",
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                     fontWeight = FontWeight.Normal
@@ -353,7 +358,7 @@ fun WordDetailsScreen(
                         )
 
                         AppTextField(
-                            value = uiState.testAnswer,
+                            value = testState.answer,
                             onValueChange = onTestAnswerChange,
                             label = "Twoje tłumaczenie",
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -365,8 +370,8 @@ fun WordDetailsScreen(
                             )
                         )
 
-                        if (uiState.testError != null) {
-                            ErrorCard(error = uiState.testError)
+                        if (testState.error != null) {
+                            ErrorCard(error = testState.error)
                         }
 
                         LoadingButton(
@@ -375,12 +380,12 @@ fun WordDetailsScreen(
                                 keyboardController?.hide()
                                 onTestWordClick()
                             },
-                            isLoading = uiState.isTesting
+                            isLoading = testState.isTesting
                         )
 
                         // Wynik sprawdzania
-                        if (uiState.testResult != null) {
-                            val isCorrect = uiState.testResult.isCorrect
+                        if (testState.result != null) {
+                            val isCorrect = testState.result.isCorrect
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
@@ -440,31 +445,31 @@ fun WordDetailsScreen(
                             }
 
                             Button(
-                                onClick = { onToggleNotificationPicker(!uiState.showNotificationPicker) },
+                                onClick = { onToggleNotificationPicker(!notificationState.showPicker) },
                                 shape = RoundedCornerShape(12.dp)
                             ) {
-                                Text(if (uiState.showNotificationPicker) "Ukryj" else "Zaplanuj")
+                                Text(if (notificationState.showPicker) "Ukryj" else "Zaplanuj")
                             }
                         }
 
-                        AnimatedVisibility(visible = uiState.showNotificationPicker) {
+                        AnimatedVisibility(visible = notificationState.showPicker) {
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 NotificationDateTimePicker(
-                                    dateTime = uiState.scheduleDateTime,
+                                    dateTime = notificationState.dateTime,
                                     onDateChanged = onScheduleDateChanged,
                                     onTimeChanged = onScheduleTimeChanged
                                 )
 
-                                if (uiState.notificationError != null) {
-                                    ErrorCard(error = uiState.notificationError)
+                                if (notificationState.error != null) {
+                                    ErrorCard(error = notificationState.error)
                                 }
 
                                 LoadingButton(
                                     text = "Zapisz powiadomienie",
                                     onClick = onScheduleNotificationClick,
-                                    isLoading = uiState.isSchedulingNotification
+                                    isLoading = notificationState.isScheduling
                                 )
                             }
                         }
@@ -475,7 +480,7 @@ fun WordDetailsScreen(
     }
 
     // Dialog Edycji Słówka
-    if (uiState.showEditDialog && uiState.word != null) {
+    if (editState.showDialog && uiState.word != null) {
         AlertDialog(
             onDismissRequest = { onShowEditDialog(false) },
             title = {
@@ -486,18 +491,18 @@ fun WordDetailsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     AppTextField(
-                        value = uiState.editWord,
+                        value = editState.word,
                         onValueChange = onEditWordChange,
                         label = "Słowo po angielsku"
                     )
                     AppTextField(
-                        value = uiState.editTranslation,
+                        value = editState.translation,
                         onValueChange = onEditTranslationChange,
                         label = "Tłumaczenie po polsku"
                     )
 
-                    if (uiState.editError != null) {
-                        ErrorCard(error = uiState.editError)
+                    if (editState.error != null) {
+                        ErrorCard(error = editState.error)
                     }
                 }
             },
@@ -505,7 +510,7 @@ fun WordDetailsScreen(
                 LoadingButton(
                     text = "Zapisz",
                     onClick = onUpdateWordClick,
-                    isLoading = uiState.isUpdating
+                    isLoading = editState.isUpdating
                 )
             },
             dismissButton = {
@@ -517,7 +522,7 @@ fun WordDetailsScreen(
     }
 
     // Dialog Potwierdzenia Usunięcia Słówka
-    if (uiState.showDeleteConfirmation && uiState.word != null) {
+    if (deleteState.showConfirmation && uiState.word != null) {
         AlertDialog(
             onDismissRequest = { onShowDeleteConfirmation(false) },
             title = {
@@ -536,9 +541,9 @@ fun WordDetailsScreen(
                         contentColor = MaterialTheme.colorScheme.onError
                     ),
                     shape = RoundedCornerShape(12.dp),
-                    enabled = !uiState.isDeleting
+                    enabled = !deleteState.isDeleting
                 ) {
-                    if (uiState.isDeleting) {
+                    if (deleteState.isDeleting) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.onError)
                     } else {
                         Text("Usuń")

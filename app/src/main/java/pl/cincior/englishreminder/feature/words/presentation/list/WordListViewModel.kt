@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.cincior.englishreminder.core.domain.model.Result
 import pl.cincior.englishreminder.core.presentation.asUiText
+import pl.cincior.englishreminder.feature.words.domain.model.WordCategory
 import pl.cincior.englishreminder.feature.words.domain.repository.WordRepository
 import javax.inject.Inject
 
@@ -42,6 +43,24 @@ class WordListViewModel @Inject constructor(
                 is Result.Success -> _uiState.update { it.copy(isLoading = false) }
                 is Result.Error -> _uiState.update { it.copy(error = result.error.asUiText(), isLoading = false) }
             }
+        }
+    }
+
+    fun onCategoryChange(category: WordCategory?) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(category = category, isCategoryExpanded = false) }
+        }
+    }
+
+    fun onCategoryDismiss() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isCategoryExpanded = false) }
+        }
+    }
+
+    fun onCategoryExpand() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isCategoryExpanded = true) }
         }
     }
 }

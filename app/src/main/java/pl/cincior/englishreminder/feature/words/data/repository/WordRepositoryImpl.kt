@@ -48,7 +48,9 @@ class WordRepositoryImpl @Inject constructor(
                         translation = entity.translation,
                         insertDateTime = entity.insertDateTime,
                         category = entity.category.toWordCategory(),
-                        memorizeChance = entity.memorizeChance
+                        memorizeChance = entity.memorizeChance,
+                        correctAnswersCount = entity.correctAnswersCount,
+                        incorrectAnswersCount = entity.incorrectAnswersCount
                     )
                 }
                 Result.Success(userWords)
@@ -78,7 +80,9 @@ class WordRepositoryImpl @Inject constructor(
                 translation = userWord.translation,
                 insertDateTime = userWord.insertDateTime,
                 category = userWord.category.toWordCategory(),
-                memorizeChance = userWord.memorizeChance.toFloat()
+                memorizeChance = userWord.memorizeChance.toFloat(),
+                correctAnswersCount = userWord.correctAnswersCount,
+                incorrectAnswersCount = userWord.incorrectAnswersCount
             )
         }
         wordDAO.syncWords(userWords.map { userWord ->
@@ -88,7 +92,9 @@ class WordRepositoryImpl @Inject constructor(
                 translation = userWord.translation,
                 insertDateTime = userWord.insertDateTime,
                 category = userWord.category.name,
-                memorizeChance = userWord.memorizeChance
+                memorizeChance = userWord.memorizeChance,
+                correctAnswersCount = userWord.correctAnswersCount,
+                incorrectAnswersCount = userWord.incorrectAnswersCount
             )
         })
         return Result.Success(Unit)
@@ -105,7 +111,9 @@ class WordRepositoryImpl @Inject constructor(
                             translation = entity.translation,
                             insertDateTime = entity.insertDateTime,
                             category = entity.category.toWordCategory(),
-                            memorizeChance = entity.memorizeChance
+                            memorizeChance = entity.memorizeChance,
+                            correctAnswersCount = entity.correctAnswersCount,
+                            incorrectAnswersCount = entity.incorrectAnswersCount
                         )
                     )
                 } else {

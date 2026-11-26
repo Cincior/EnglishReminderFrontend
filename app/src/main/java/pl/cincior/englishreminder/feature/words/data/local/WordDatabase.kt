@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import pl.cincior.englishreminder.feature.words.data.local.dao.WordDAO
 import pl.cincior.englishreminder.feature.words.data.local.entity.WordEntity
 
-@Database(entities = [WordEntity::class], version = 2, exportSchema = false)
+@Database(entities = [WordEntity::class], version = 3, exportSchema = false)
 abstract class WordDatabase : RoomDatabase() {
     abstract fun wordDao(): WordDAO
 }

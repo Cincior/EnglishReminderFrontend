@@ -120,6 +120,10 @@ type WordData {
   category: Category!
 
   memorizeChance: Float!
+
+  correctAnswersCount: Int!
+
+  incorrectAnswersCount: Int!
 }
 
 type WordTestResultPayload {

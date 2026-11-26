@@ -1,7 +1,6 @@
 package pl.cincior.englishreminder.feature.words.presentation.details
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,20 +10,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.Image
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -42,12 +43,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import pl.cincior.englishreminder.R
 import pl.cincior.englishreminder.core.domain.model.DateTime
 import pl.cincior.englishreminder.core.presentation.components.AppTextField
 import pl.cincior.englishreminder.core.presentation.components.ErrorCard
@@ -58,12 +61,13 @@ import pl.cincior.englishreminder.feature.words.domain.model.WordCategory
 @Composable
 fun WordDetailsRoute(
     viewModel: WordDetailsViewModel = hiltViewModel(),
-    onNavigationBack: () -> Unit
+    onNavigationBack: () -> Unit,
+    onStartTest: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.isDeleted) {
-        if (uiState.isDeleted) {
+    LaunchedEffect(uiState.deleteState.isDeleted) {
+        if (uiState.deleteState.isDeleted) {
             onNavigationBack()
         }
     }
@@ -71,10 +75,9 @@ fun WordDetailsRoute(
     WordDetailsScreen(
         uiState = uiState,
         onNavigationBack = onNavigationBack,
+        onStartTest = onStartTest,
         onToggleTranslationVisibility = viewModel::onToggleTranslationVisibility,
         onCategorySelect = viewModel::onCategorySelected,
-        onTestAnswerChange = viewModel::onTestAnswerChanged,
-        onTestWordClick = viewModel::testWord,
         onToggleNotificationPicker = viewModel::onToggleNotificationPicker,
         onScheduleDateChanged = viewModel::onScheduleDateChanged,
         onScheduleTimeChanged = viewModel::onScheduleTimeChanged,
@@ -84,7 +87,8 @@ fun WordDetailsRoute(
         onEditTranslationChange = viewModel::onEditTranslationChanged,
         onUpdateWordClick = viewModel::updateWord,
         onShowDeleteConfirmation = viewModel::onShowDeleteConfirmation,
-        onDeleteWordClick = viewModel::deleteWord
+        onDeleteWordClick = viewModel::deleteWord,
+        onPronounce = viewModel::pronounceWord
     )
 }
 
@@ -93,10 +97,9 @@ fun WordDetailsRoute(
 fun WordDetailsScreen(
     uiState: WordDetailsUiState,
     onNavigationBack: () -> Unit,
+    onStartTest: (String) -> Unit,
     onToggleTranslationVisibility: () -> Unit,
     onCategorySelect: (WordCategory) -> Unit,
-    onTestAnswerChange: (String) -> Unit,
-    onTestWordClick: () -> Unit,
     onToggleNotificationPicker: (Boolean) -> Unit,
     onScheduleDateChanged: (Long?) -> Unit,
     onScheduleTimeChanged: (hour: Int, minute: Int) -> Unit,
@@ -106,10 +109,14 @@ fun WordDetailsScreen(
     onEditTranslationChange: (String) -> Unit,
     onUpdateWordClick: () -> Unit,
     onShowDeleteConfirmation: (Boolean) -> Unit,
-    onDeleteWordClick: () -> Unit
+    onDeleteWordClick: () -> Unit,
+    onPronounce: () -> Unit
 ) {
     var categoryDropdownExpanded by remember { mutableStateOf(false) }
-    val keyboardController = LocalSoftwareKeyboardController.current
+
+    val notificationState = uiState.notificationState
+    val editState = uiState.editState
+    val deleteState = uiState.deleteState
 
     Scaffold(
         topBar = {
@@ -192,7 +199,7 @@ fun WordDetailsScreen(
                 }
             }
 
-            if (uiState.notificationSuccessMessage != null) {
+            if (notificationState.successMessage != null) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -201,7 +208,7 @@ fun WordDetailsScreen(
                     )
                 ) {
                     Text(
-                        text = uiState.notificationSuccessMessage.asString(),
+                        text = notificationState.successMessage.asString(),
                         modifier = Modifier.padding(14.dp),
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                         style = MaterialTheme.typography.bodyMedium,
@@ -224,12 +231,25 @@ fun WordDetailsScreen(
                         modifier = Modifier.padding(20.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text(
-                            text = word.word,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = word.word,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            IconButton(onClick = onPronounce) {
+                                Image(
+                                    painter = painterResource(R.drawable.sound),
+                                    contentDescription = "Odtwórz wymowę",
+                                    modifier = Modifier.size(22.dp),
+                                    contentScale = ContentScale.Fit,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                                )
+                            }
+                        }
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -245,7 +265,7 @@ fun WordDetailsScreen(
                                 )
                             } else {
                                 Text(
-                                    text = "Tłumaczenie: ---",
+                                    text = "Tłumaczenie: ••••••••",
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                     fontWeight = FontWeight.Normal
@@ -290,29 +310,70 @@ fun WordDetailsScreen(
                             }
                         }
 
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(
+                                    text = "Poprawne odpowiedzi:",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                                Text(
+                                    text = word.correctAnswersCount.toString(),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    text = "Błędne odpowiedzi:",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                                Text(
+                                    text = word.incorrectAnswersCount.toString(),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+
                         // Wybór kategorii
                         Column(modifier = Modifier.padding(top = 8.dp)) {
                             Text(
                                 text = "Kategoria",
                                 style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(4.dp))
-                            Box(modifier = Modifier.fillMaxWidth()) {
+                            ExposedDropdownMenuBox(
+                                expanded = categoryDropdownExpanded,
+                                onExpandedChange = { categoryDropdownExpanded = it }
+                            ) {
                                 OutlinedTextField(
                                     value = word.category.displayName,
                                     onValueChange = {},
                                     readOnly = true,
-                                    enabled = false,
                                     shape = RoundedCornerShape(12.dp),
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { categoryDropdownExpanded = true }
+                                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(
+                                            expanded = categoryDropdownExpanded
+                                        )
+                                    },
+                                    colors = ExposedDropdownMenuDefaults.textFieldColors()
                                 )
-                                DropdownMenu(
+                                ExposedDropdownMenu(
                                     expanded = categoryDropdownExpanded,
-                                    onDismissRequest = { categoryDropdownExpanded = false },
-                                    modifier = Modifier.fillMaxWidth(0.85f)
+                                    onDismissRequest = { categoryDropdownExpanded = false }
                                 ) {
                                     WordCategory.entries.forEach { category ->
                                         DropdownMenuItem(
@@ -347,64 +408,16 @@ fun WordDetailsScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Wpisz tłumaczenie dla słowa '${word.word}':",
+                            text = "Sprawdź, jak dobrze pamiętasz tłumaczenie.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                         )
 
-                        AppTextField(
-                            value = uiState.testAnswer,
-                            onValueChange = onTestAnswerChange,
-                            label = "Twoje tłumaczenie",
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                            keyboardActions = KeyboardActions(
-                                onDone = {
-                                    keyboardController?.hide()
-                                    onTestWordClick()
-                                }
-                            )
-                        )
-
-                        if (uiState.testError != null) {
-                            ErrorCard(error = uiState.testError)
-                        }
-
-                        LoadingButton(
-                            text = "Sprawdź",
-                            onClick = {
-                                keyboardController?.hide()
-                                onTestWordClick()
-                            },
-                            isLoading = uiState.isTesting
-                        )
-
-                        // Wynik sprawdzania
-                        if (uiState.testResult != null) {
-                            val isCorrect = uiState.testResult.isCorrect
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = if (isCorrect) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
-                                )
-                            ) {
-                                Column(modifier = Modifier.padding(14.dp)) {
-                                    Text(
-                                        text = if (isCorrect) "Brawo! Poprawna odpowiedź!" else "Niepoprawna odpowiedź.",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (isCorrect) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
-                                    )
-                                    if (!isCorrect) {
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = "Poprawne tłumaczenie to: ${word.translation}",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onErrorContainer
-                                        )
-                                    }
-                                }
-                            }
+                        Button(
+                            onClick = { onStartTest(word.id) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Przetestuj się")
                         }
                     }
                 }
@@ -440,31 +453,31 @@ fun WordDetailsScreen(
                             }
 
                             Button(
-                                onClick = { onToggleNotificationPicker(!uiState.showNotificationPicker) },
+                                onClick = { onToggleNotificationPicker(!notificationState.showPicker) },
                                 shape = RoundedCornerShape(12.dp)
                             ) {
-                                Text(if (uiState.showNotificationPicker) "Ukryj" else "Zaplanuj")
+                                Text(if (notificationState.showPicker) "Ukryj" else "Zaplanuj")
                             }
                         }
 
-                        AnimatedVisibility(visible = uiState.showNotificationPicker) {
+                        AnimatedVisibility(visible = notificationState.showPicker) {
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 NotificationDateTimePicker(
-                                    dateTime = uiState.scheduleDateTime,
+                                    dateTime = notificationState.dateTime,
                                     onDateChanged = onScheduleDateChanged,
                                     onTimeChanged = onScheduleTimeChanged
                                 )
 
-                                if (uiState.notificationError != null) {
-                                    ErrorCard(error = uiState.notificationError)
+                                if (notificationState.error != null) {
+                                    ErrorCard(error = notificationState.error)
                                 }
 
                                 LoadingButton(
                                     text = "Zapisz powiadomienie",
                                     onClick = onScheduleNotificationClick,
-                                    isLoading = uiState.isSchedulingNotification
+                                    isLoading = notificationState.isScheduling
                                 )
                             }
                         }
@@ -475,7 +488,7 @@ fun WordDetailsScreen(
     }
 
     // Dialog Edycji Słówka
-    if (uiState.showEditDialog && uiState.word != null) {
+    if (editState.showDialog && uiState.word != null) {
         AlertDialog(
             onDismissRequest = { onShowEditDialog(false) },
             title = {
@@ -486,18 +499,18 @@ fun WordDetailsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     AppTextField(
-                        value = uiState.editWord,
+                        value = editState.word,
                         onValueChange = onEditWordChange,
                         label = "Słowo po angielsku"
                     )
                     AppTextField(
-                        value = uiState.editTranslation,
+                        value = editState.translation,
                         onValueChange = onEditTranslationChange,
                         label = "Tłumaczenie po polsku"
                     )
 
-                    if (uiState.editError != null) {
-                        ErrorCard(error = uiState.editError)
+                    if (editState.error != null) {
+                        ErrorCard(error = editState.error)
                     }
                 }
             },
@@ -505,7 +518,7 @@ fun WordDetailsScreen(
                 LoadingButton(
                     text = "Zapisz",
                     onClick = onUpdateWordClick,
-                    isLoading = uiState.isUpdating
+                    isLoading = editState.isUpdating
                 )
             },
             dismissButton = {
@@ -517,7 +530,7 @@ fun WordDetailsScreen(
     }
 
     // Dialog Potwierdzenia Usunięcia Słówka
-    if (uiState.showDeleteConfirmation && uiState.word != null) {
+    if (deleteState.showConfirmation && uiState.word != null) {
         AlertDialog(
             onDismissRequest = { onShowDeleteConfirmation(false) },
             title = {
@@ -536,9 +549,9 @@ fun WordDetailsScreen(
                         contentColor = MaterialTheme.colorScheme.onError
                     ),
                     shape = RoundedCornerShape(12.dp),
-                    enabled = !uiState.isDeleting
+                    enabled = !deleteState.isDeleting
                 ) {
-                    if (uiState.isDeleting) {
+                    if (deleteState.isDeleting) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.onError)
                     } else {
                         Text("Usuń")

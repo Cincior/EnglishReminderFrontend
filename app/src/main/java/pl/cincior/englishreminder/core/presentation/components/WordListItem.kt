@@ -21,7 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,7 +79,7 @@ fun WordListItem(
 }
 
 @Composable
-private fun MemorizeChanceIndicator(
+fun MemorizeChanceIndicator(
     memorizeChance: Float,
     modifier: Modifier = Modifier
 ) {
@@ -87,10 +89,13 @@ private fun MemorizeChanceIndicator(
     ) {
         if (memorizeChance != -1f) {
             val progressValue = if (memorizeChance > 1f) (memorizeChance / 100f).coerceIn(0f, 1f) else memorizeChance.coerceIn(0f, 1f)
-            var targetProgress by remember { mutableFloatStateOf(0f) }
+
+            var hasAnimated by rememberSaveable { mutableStateOf(false) }
+            var targetProgress by remember { mutableFloatStateOf(if (hasAnimated) progressValue else 0f) }
 
             LaunchedEffect(progressValue) {
                 targetProgress = progressValue
+                hasAnimated = true
             }
 
             val animatedProgress by animateFloatAsState(

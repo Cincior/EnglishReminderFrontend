@@ -10,5 +10,7 @@ data class WordEntity(
     val translation: String,
     val insertDateTime: String,
     val category: String = "NOT_LEARNED",
-    val memorizeChance: Float
+    val memorizeChance: Float,
+    val correctAnswersCount: Int = 0,
+    val incorrectAnswersCount: Int = 0
 )

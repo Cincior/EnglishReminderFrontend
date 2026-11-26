@@ -18,6 +18,7 @@ import pl.cincior.englishreminder.core.data.network.errorCode
 import pl.cincior.englishreminder.core.di.qualifier.IdentityApolloClient
 import pl.cincior.englishreminder.identity.graphql.LoginMutation
 import pl.cincior.englishreminder.identity.graphql.RegisterMutation
+import pl.cincior.englishreminder.identity.graphql.RefreshMutation
 import pl.cincior.englishreminder.identity.graphql.ResetPasswordMutation
 import pl.cincior.englishreminder.identity.graphql.ResetPasswordRequestMutation
 import pl.cincior.englishreminder.identity.graphql.VerifyUserMutation
@@ -47,6 +48,31 @@ class AuthRepositoryImpl @Inject constructor(
             val payload = response.data?.login ?: return Result.Error(AuthError.Data.UNKNOWN_ERROR)
 
             FirebaseMessaging.getInstance().register()
+            return Result.Success(AuthToken(payload.token, payload.refreshToken))
+        } catch (_: ApolloException) {
+            return Result.Error(AuthError.Network.NETWORK_ERROR)
+        }
+    }
+
+    override suspend fun refreshToken(refreshToken: String): Result<AuthToken, AuthError> {
+        try {
+            val response = apolloIdentityClient.mutation(
+                RefreshMutation(refreshToken = refreshToken)
+            ).execute()
+
+            response.exception?.let { return Result.Error(it.toAuthNetworkError()) }
+
+            if (response.hasErrors()) {
+                return Result.Error(response.errorCode().toAuthError())
+            }
+
+            val payload = response.data?.refresh
+                ?: return Result.Error(AuthError.Data.UNKNOWN_ERROR)
+
+            if (payload.token.isBlank() || payload.refreshToken.isBlank()) {
+                return Result.Error(AuthError.Data.UNKNOWN_ERROR)
+            }
+
             return Result.Success(AuthToken(payload.token, payload.refreshToken))
         } catch (_: ApolloException) {
             return Result.Error(AuthError.Network.NETWORK_ERROR)

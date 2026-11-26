@@ -7,8 +7,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.cincior.englishreminder.R
 import pl.cincior.englishreminder.feature.auth.domain.repository.AuthRepository
 import pl.cincior.englishreminder.core.domain.repository.TokenStorage
 import pl.cincior.englishreminder.core.domain.model.Result
@@ -22,7 +24,18 @@ class LoginViewModel @Inject constructor(
     private val tokenStorage: TokenStorage
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
-    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow();
+    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    rememberMe = tokenStorage.getRememberMe().first(),
+                    rememberMeLoaded = true
+                )
+            }
+        }
+    }
 
     fun onEmailChanged(newEmail: String) {
         _uiState.update { it.copy(email = newEmail, error = null) }
@@ -32,10 +45,20 @@ class LoginViewModel @Inject constructor(
         _uiState.update { it.copy(password = newPassword, error = null) }
     }
 
+    fun onRememberMeChanged(rememberMe: Boolean) {
+        _uiState.update { it.copy(rememberMe = rememberMe) }
+    }
+
+    fun showStartupError(message: String) {
+        if (message.isNotBlank()) {
+            _uiState.update { it.copy(error = UiText.DynamicString(message)) }
+        }
+    }
+
     fun onLoginClick() {
         val state = _uiState.value
         if (state.email.isBlank() || state.password.isBlank()) {
-            _uiState.update{it.copy(error = UiText.DynamicString("Email lub hasło nie może być puste"))}
+            _uiState.update { it.copy(error = UiText.StringResource(R.string.error_email_or_password_empty)) }
             return
         }
 
@@ -46,6 +69,7 @@ class LoginViewModel @Inject constructor(
                 is Result.Success -> {
                     tokenStorage.saveAuthToken(result.data.jwtToken)
                     tokenStorage.saveRefreshToken(result.data.refreshToken)
+                    tokenStorage.saveRememberMe(state.rememberMe)
                     Log.i("token: ", result.data.jwtToken)
                     _uiState.update { it.copy(isLoading = false, isLoggedIn = true) }
                 }

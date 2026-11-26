@@ -14,7 +14,7 @@
     <string name="server_error">Błąd serwera. Spróbuj ponownie później</string>
     <string name="unknown_error">Wystąpił nieoczekiwany błąd</string>
     <string name="network_error">Brak połączenia z siecią. Sprawdź swoje połączenie internetowe</string>
-    <string name="no_connection">Brak połączenia z siecią</string>
+    <string name="no_connection">Brak połączenia z serwerem</string>
 
     <!-- Word errors -->
     <string name="no_words_found">Nie znaleziono żadnych słówek</string>
@@ -30,4 +30,18 @@
     <string name="wrong_time">Niepoprawny czas powiadomienia</string>
     <string name="failed_to_schedule_notification">Nie udało się zaplanować powiadomienia</string>
     <string name="local_storage_error">nie udało sie załadować danych lokalnych</string>
+
+    <!-- Validation and status messages -->
+    <string name="error_email_or_password_empty">Email lub hasło nie może być puste</string>
+    <string name="error_fill_word_and_translation">Wypełnij słowo oraz tłumaczenie</string>
+    <string name="error_word_exists">Słowo już istnieje w bazie. Zaznacz \'Wymuś duplikat\', jeśli chcesz dodać je ponownie.</string>
+    <string name="error_failed_to_add_word">Nie udało się dodać słówka</string>
+    <string name="error_all_fields_required">Wszystkie pola muszą być wypełnione</string>
+    <string name="error_invalid_email_format">Niepoprawny format adresu e-mail</string>
+    <string name="error_password_too_short">Hasło musi mieć co najmniej 6 znaków</string>
+    <string name="error_word_id_not_found">Nie znaleziono identyfikatora słówka</string>
+    <string name="error_type_answer_first">Wpisz odpowiedź przed sprawdzeniem</string>
+    <string name="notification_scheduled_success">Zaplanowano powiadomienie na %1$s!</string>
+    <string name="error_fill_word_and_translation_edit">Wypełnij słówko i tłumaczenie</string>
+    <string name="word_updated_success">Słówko zostało pomyślnie zaktualizowane</string>
 </resources>

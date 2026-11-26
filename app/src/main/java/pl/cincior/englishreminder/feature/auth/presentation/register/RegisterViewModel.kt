@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.cincior.englishreminder.R
 import pl.cincior.englishreminder.feature.auth.domain.repository.AuthRepository
 import pl.cincior.englishreminder.core.domain.model.Result
 import pl.cincior.englishreminder.core.presentation.UiText
@@ -49,17 +50,17 @@ class RegisterViewModel @Inject constructor(
         if (state.name.isBlank() || state.surname.isBlank() || state.nickname.isBlank() ||
             state.email.isBlank() || state.password.isBlank()
         ) {
-            _uiState.update { it.copy(error = UiText.DynamicString("Wszystkie pola muszą być wypełnione")) }
+            _uiState.update { it.copy(error = UiText.StringResource(R.string.error_all_fields_required)) }
             return
         }
 
         if (!state.email.contains("@")) {
-            _uiState.update { it.copy(error = UiText.DynamicString("Niepoprawny format adresu e-mail")) }
+            _uiState.update { it.copy(error = UiText.StringResource(R.string.error_invalid_email_format)) }
             return
         }
 
         if (state.password.length < 6) {
-            _uiState.update { it.copy(error = UiText.DynamicString("Hasło musi mieć co najmniej 6 znaków")) }
+            _uiState.update { it.copy(error = UiText.StringResource(R.string.error_password_too_short)) }
             return
         }
 

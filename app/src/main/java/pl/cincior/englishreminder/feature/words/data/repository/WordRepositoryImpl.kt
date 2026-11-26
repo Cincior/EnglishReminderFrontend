@@ -48,7 +48,9 @@ class WordRepositoryImpl @Inject constructor(
                         translation = entity.translation,
                         insertDateTime = entity.insertDateTime,
                         category = entity.category.toWordCategory(),
-                        memorizeChance = entity.memorizeChance
+                        memorizeChance = entity.memorizeChance,
+                        correctAnswersCount = entity.correctAnswersCount,
+                        incorrectAnswersCount = entity.incorrectAnswersCount
                     )
                 }
                 Result.Success(userWords)
@@ -78,17 +80,21 @@ class WordRepositoryImpl @Inject constructor(
                 translation = userWord.translation,
                 insertDateTime = userWord.insertDateTime,
                 category = userWord.category.toWordCategory(),
-                memorizeChance = userWord.memorizeChance.toFloat()
+                memorizeChance = userWord.memorizeChance.toFloat(),
+                correctAnswersCount = userWord.correctAnswersCount,
+                incorrectAnswersCount = userWord.incorrectAnswersCount
             )
         }
-        wordDAO.insertWords(userWords.map { userWord ->
+        wordDAO.syncWords(userWords.map { userWord ->
             WordEntity(
                 id = userWord.id,
                 word = userWord.word,
                 translation = userWord.translation,
                 insertDateTime = userWord.insertDateTime,
                 category = userWord.category.name,
-                memorizeChance = userWord.memorizeChance
+                memorizeChance = userWord.memorizeChance,
+                correctAnswersCount = userWord.correctAnswersCount,
+                incorrectAnswersCount = userWord.incorrectAnswersCount
             )
         })
         return Result.Success(Unit)
@@ -105,7 +111,9 @@ class WordRepositoryImpl @Inject constructor(
                             translation = entity.translation,
                             insertDateTime = entity.insertDateTime,
                             category = entity.category.toWordCategory(),
-                            memorizeChance = entity.memorizeChance
+                            memorizeChance = entity.memorizeChance,
+                            correctAnswersCount = entity.correctAnswersCount,
+                            incorrectAnswersCount = entity.incorrectAnswersCount
                         )
                     )
                 } else {
@@ -256,12 +264,14 @@ class WordRepositoryImpl @Inject constructor(
 
     override suspend fun testWord(
         wordId: String,
-        translation: String
+        translation: String,
+        timeToAnswer: Float
     ): Result<TestWordResult, WordError> {
         val response = apolloWordClient.mutation(
             TestWordMutation(
                 wordId = wordId,
-                translation = translation
+                translation = translation,
+                timeToAnswer = timeToAnswer.toDouble()
             )
         ).execute()
 

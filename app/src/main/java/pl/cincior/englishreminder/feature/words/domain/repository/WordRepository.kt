@@ -19,6 +19,10 @@ interface WordRepository {
     suspend fun setCategory(wordId: String, category: WordCategory): Result<Unit, WordError>
     suspend fun updateWord(wordId: String, newWord: String, newTranslation: String): Result<UpdateWordResult, WordError>
     suspend fun deleteWord(wordId: String): Result<DeleteWordResult, WordError>
-    suspend fun testWord(wordId: String, translation: String): Result<TestWordResult, WordError>
+    suspend fun testWord(
+        wordId: String,
+        translation: String,
+        timeToAnswer: Float
+    ): Result<TestWordResult, WordError>
     suspend fun scheduleNotification(wordId: String, scheduleTime: String): Result<ScheduleNotificationResult, WordError>
 }

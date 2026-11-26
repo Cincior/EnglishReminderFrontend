@@ -20,6 +20,7 @@ import pl.cincior.englishreminder.feature.words.presentation.add.AddWordRoute
 import pl.cincior.englishreminder.feature.words.presentation.details.WordDetailsRoute
 import pl.cincior.englishreminder.feature.words.presentation.home.HomeRoute
 import pl.cincior.englishreminder.feature.words.presentation.list.WordListRoute
+import pl.cincior.englishreminder.feature.words.presentation.test.WordTestRoute
 
 sealed interface Screen {
     @Serializable data object Splash : Screen
@@ -31,6 +32,7 @@ sealed interface Screen {
     @Serializable data class ResetPassword(val email: String? = null) : Screen
     @Serializable data object WordList : Screen
     @Serializable data class WordDetails(val id: String) : Screen
+    @Serializable data class WordTest(val wordId: String? = null, val category: String? = null) : Screen
     @Serializable data object WordAdd : Screen
 }
 
@@ -149,6 +151,9 @@ fun AppNavigation(
                 onNavigateToWordDetails = { wordId ->
                     navController.navigate(Screen.WordDetails(id = wordId))
                 },
+                onNavigateToCategoryTest = { category ->
+                    navController.navigate(Screen.WordTest(category = category.name))
+                },
                 onBackClick = {
                     navController.popBackStack()
                 }
@@ -159,7 +164,16 @@ fun AppNavigation(
             deepLinks = listOf(navDeepLink { uriPattern = "englishreminder://word_details/{id}" })
         ) {
             WordDetailsRoute(
-                onNavigationBack = { navController.popBackStack() }
+                onNavigationBack = { navController.popBackStack() },
+                onStartTest = { wordId ->
+                    navController.navigate(Screen.WordTest(wordId = wordId))
+                }
+            )
+        }
+
+        composable<Screen.WordTest> {
+            WordTestRoute(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

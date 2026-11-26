@@ -1,5 +1,5 @@
-mutation TestWord($wordId: ID!, $translation: String!) {
-    testWord(wordId: $wordId, translation: $translation) {
+mutation TestWord($wordId: ID!, $translation: String!, $timeToAnswer: Float!) {
+    testWord(wordId: $wordId, translation: $translation, timeToAnswer: $timeToAnswer) {
         wordId
         isCorrect
         testTime

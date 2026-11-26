@@ -256,12 +256,14 @@ class WordRepositoryImpl @Inject constructor(
 
     override suspend fun testWord(
         wordId: String,
-        translation: String
+        translation: String,
+        timeToAnswer: Float
     ): Result<TestWordResult, WordError> {
         val response = apolloWordClient.mutation(
             TestWordMutation(
                 wordId = wordId,
-                translation = translation
+                translation = translation,
+                timeToAnswer = timeToAnswer.toDouble()
             )
         ).execute()
 

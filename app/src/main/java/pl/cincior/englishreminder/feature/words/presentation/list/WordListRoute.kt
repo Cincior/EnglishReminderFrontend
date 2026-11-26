@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -30,17 +33,27 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import pl.cincior.englishreminder.core.presentation.components.WordListItem
+import pl.cincior.englishreminder.feature.words.domain.model.UserWord
 import pl.cincior.englishreminder.feature.words.domain.model.WordCategory
+
+private enum class MemorizeChanceSort {
+    NONE,
+    ASCENDING,
+    DESCENDING
+}
 
 @Composable
 fun WordListRoute(
     onNavigateToWordDetails: (String) -> Unit,
+    onNavigateToCategoryTest: (WordCategory) -> Unit,
     onBackClick: () -> Unit,
     viewModel: WordListViewModel = hiltViewModel()
 ) {
@@ -49,6 +62,7 @@ fun WordListRoute(
     WordListScreen(
         uiState = uiState,
         onWordClick = onNavigateToWordDetails,
+        onCategoryTestClick = onNavigateToCategoryTest,
         onBackClick = onBackClick,
         onRefresh = { viewModel.refreshWordsFromBackend() },
         onCategoryChange = { category -> viewModel.onCategoryChange(category) },
@@ -62,13 +76,16 @@ fun WordListRoute(
 fun WordListScreen(
     uiState: WordListUiState,
     onWordClick: (String) -> Unit,
+    onCategoryTestClick: (WordCategory) -> Unit,
     onBackClick: () -> Unit,
     onRefresh: () -> Unit,
     onCategoryChange: (WordCategory?) -> Unit,
     onCategoryDismiss: () -> Unit,
     onCategoryExpand: () -> Unit
 ) {
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var chanceSortOrder by rememberSaveable { mutableStateOf(MemorizeChanceSort.NONE) }
+    var isSortMenuExpanded by remember { mutableStateOf(false) }
 
     val filteredWords = remember(uiState.wordList, searchQuery, uiState.category) {
         var currentWords = uiState.wordList
@@ -84,6 +101,19 @@ fun WordListScreen(
             }
         }
         currentWords
+    }
+    val visibleWords = remember(filteredWords, chanceSortOrder) {
+        when (chanceSortOrder) {
+            MemorizeChanceSort.NONE -> filteredWords
+            MemorizeChanceSort.ASCENDING -> filteredWords.sortedWith(
+                compareBy<UserWord> { it.memorizeChance < 0f }
+                    .thenBy { it.memorizeChance }
+            )
+            MemorizeChanceSort.DESCENDING -> filteredWords.sortedWith(
+                compareBy<UserWord> { it.memorizeChance < 0f }
+                    .thenByDescending { it.memorizeChance }
+            )
+        }
     }
 
     Scaffold(
@@ -118,34 +148,6 @@ fun WordListScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(paddingValues)
-        ) {
-            Box() {
-                IconButton(
-                    onClick = { onCategoryExpand() },
-                ) {
-                    Text("Filtruj")
-                }
-                DropdownMenu(
-                    expanded = uiState.isCategoryExpanded,
-                    onDismissRequest = { onCategoryDismiss() }
-                ) {
-                    for (category in WordCategory.entries) {
-                        DropdownMenuItem(
-                            text = {Text(category.displayName)},
-                            onClick = { onCategoryChange(category) }
-                        )
-                        DropdownMenuItem(
-                            text = {Text("Wyczyść filtr")},
-                            onClick = { onCategoryChange(null) }
-                        )
-                    }
-                }
-            }
-        }
         PullToRefreshBox(
             isRefreshing = uiState.isLoading,
             onRefresh = onRefresh,
@@ -164,8 +166,113 @@ fun WordListScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     placeholder = { Text("Szukaj słówka...") },
                     singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Text("×", style = MaterialTheme.typography.titleLarge)
+                            }
+                        }
+                    }
                 )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        FilledTonalButton(
+                            onClick = onCategoryExpand,
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = uiState.category?.displayName ?: "Kategoria",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = uiState.isCategoryExpanded,
+                            onDismissRequest = { onCategoryDismiss() }
+                        ) {
+                            for (category in WordCategory.entries) {
+                                DropdownMenuItem(
+                                    text = {Text(category.displayName)},
+                                    onClick = { onCategoryChange(category) }
+                                )
+                            }
+                            DropdownMenuItem(
+                                text = { Text("Wyczyść filtr") },
+                                onClick = { onCategoryChange(null) }
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.weight(1f)) {
+                        FilledTonalButton(
+                            onClick = { isSortMenuExpanded = true },
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = when (chanceSortOrder) {
+                                    MemorizeChanceSort.NONE -> "Szansa"
+                                    MemorizeChanceSort.ASCENDING -> "Szansa ↑"
+                                    MemorizeChanceSort.DESCENDING -> "Szansa ↓"
+                                },
+                                maxLines = 1
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = isSortMenuExpanded,
+                            onDismissRequest = { isSortMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Szansa rosnąco") },
+                                onClick = {
+                                    chanceSortOrder = MemorizeChanceSort.ASCENDING
+                                    isSortMenuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Szansa malejąco") },
+                                onClick = {
+                                    chanceSortOrder = MemorizeChanceSort.DESCENDING
+                                    isSortMenuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Domyślna kolejność") },
+                                onClick = {
+                                    chanceSortOrder = MemorizeChanceSort.NONE
+                                    isSortMenuExpanded = false
+                                }
+                            )
+                        }
+                    }
+                    Text(
+                        text = "${visibleWords.size} z ${uiState.wordList.size}",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(start = 8.dp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                uiState.category?.let { category ->
+                    val categoryWordCount = uiState.wordList.count { it.category == category }
+                    Button(
+                        onClick = { onCategoryTestClick(category) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        enabled = categoryWordCount > 0
+                    ) {
+                        Text("Rozpocznij test ($categoryWordCount)")
+                    }
+                }
 
                 if (uiState.error != null) {
                     Card(
@@ -198,24 +305,31 @@ fun WordListScreen(
                 if (filteredWords.isEmpty() && !uiState.isLoading) {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .fillMaxWidth()
+                            .weight(1f)
                             .padding(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = if (searchQuery.isNotBlank()) "Brak wyników wyszukiwania" else "Brak słówek na liście",
+                            text = when {
+                                searchQuery.isNotBlank() -> "Nie znaleziono słówek pasujących do wyszukiwania"
+                                uiState.category != null -> "Brak słówek w tej kategorii"
+                                else -> "Twoja lista jest jeszcze pusta"
+                            },
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                         )
                     }
                 } else {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(
-                            items = filteredWords,
+                            items = visibleWords,
                             key = { word -> word.id }
                         ) { word ->
                             WordListItem(

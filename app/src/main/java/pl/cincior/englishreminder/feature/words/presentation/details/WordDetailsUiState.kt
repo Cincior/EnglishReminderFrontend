@@ -2,7 +2,6 @@ package pl.cincior.englishreminder.feature.words.presentation.details
 
 import pl.cincior.englishreminder.core.domain.model.DateTime
 import pl.cincior.englishreminder.core.presentation.UiText
-import pl.cincior.englishreminder.feature.words.domain.model.TestWordResult
 import pl.cincior.englishreminder.feature.words.domain.model.UserWord
 
 data class WordDetailsUiState(
@@ -12,17 +11,9 @@ data class WordDetailsUiState(
     val error: UiText? = null,
     val successMessage: UiText? = null,
 
-    val testState: TestWordState = TestWordState(),
     val notificationState: NotificationState = NotificationState(),
     val editState: EditWordState = EditWordState(),
     val deleteState: DeleteWordState = DeleteWordState()
-)
-
-data class TestWordState(
-    val answer: String = "",
-    val isTesting: Boolean = false,
-    val result: TestWordResult? = null,
-    val error: UiText? = null
 )
 
 data class NotificationState(

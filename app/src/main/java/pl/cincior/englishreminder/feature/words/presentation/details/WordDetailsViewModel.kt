@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.cincior.englishreminder.R
 import pl.cincior.englishreminder.core.domain.model.Result
+import pl.cincior.englishreminder.core.domain.service.TextToSpeechService
 import pl.cincior.englishreminder.core.presentation.UiText
 import pl.cincior.englishreminder.core.presentation.asUiText
 import pl.cincior.englishreminder.feature.words.domain.model.WordCategory
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WordDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val textToSpeechService: TextToSpeechService,
     private val wordRepository: WordRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(WordDetailsUiState())
@@ -76,47 +78,6 @@ class WordDetailsViewModel @Inject constructor(
             val result = wordRepository.setCategory(currentWord.id, category)
             if (result is Result.Error) {
                 _uiState.update { it.copy(error = result.error.asUiText()) }
-            }
-        }
-    }
-
-    // --- TEST WORD ACTIONS ---
-    fun onTestAnswerChanged(answer: String) {
-        _uiState.update { it.copy(testState = it.testState.copy(answer = answer, error = null)) }
-    }
-
-    fun testWord() {
-        val currentWord = _uiState.value.word ?: return
-        val answer = _uiState.value.testState.answer
-        if (answer.isBlank()) {
-            _uiState.update { it.copy(testState = it.testState.copy(error = UiText.StringResource(R.string.error_type_answer_first))) }
-            return
-        }
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(testState = it.testState.copy(isTesting = true, error = null, result = null)) }
-            when (val result = wordRepository.testWord(currentWord.id, answer.trim())) {
-                is Result.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            testState = it.testState.copy(
-                                isTesting = false,
-                                result = result.data,
-                                error = null
-                            )
-                        )
-                    }
-                }
-                is Result.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            testState = it.testState.copy(
-                                isTesting = false,
-                                error = result.error.asUiText()
-                            )
-                        )
-                    }
-                }
             }
         }
     }
@@ -301,6 +262,20 @@ class WordDetailsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun pronounceWord() {
+        val word = _uiState.value.word?.word?.takeIf(String::isNotBlank) ?: return
+        textToSpeechService.speak(word, ::showSpeechError)
+    }
+
+    private fun showSpeechError(message: String) {
+        _uiState.update { it.copy(error = UiText.DynamicString(message)) }
+    }
+
+    override fun onCleared() {
+        textToSpeechService.stop()
+        super.onCleared()
     }
 
     fun clearSuccessMessage() {

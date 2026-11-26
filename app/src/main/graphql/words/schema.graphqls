@@ -50,7 +50,7 @@ input InputWordData {
 type Mutation {
   addWord(input: InputWordData!): AddWordResult!
 
-  testWord(wordId: ID!, translation: String!): WordTestResultPayload!
+  testWord(wordId: ID!, translation: String, timeToAnswer: Float!): WordTestResultPayload!
 
   setCategory(setCategoryInput: SetCategoryInput!): SetCategoryPayload!
 

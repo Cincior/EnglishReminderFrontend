@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.cincior.englishreminder.R
 import pl.cincior.englishreminder.core.domain.model.Result
 import pl.cincior.englishreminder.core.presentation.UiText
 import pl.cincior.englishreminder.core.presentation.asUiText
@@ -57,7 +58,7 @@ class AddWordViewModel @Inject constructor(
         val currentState = _uiState.value
         if (currentState.word.isBlank() || currentState.translation.isBlank()) {
             _uiState.update {
-                it.copy(error = UiText.DynamicString("Wypełnij słowo oraz tłumaczenie"))
+                it.copy(error = UiText.StringResource(R.string.error_fill_word_and_translation))
             }
             return
         }
@@ -115,11 +116,11 @@ class AddWordViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                error = UiText.DynamicString("Słowo już istnieje w bazie. Zaznacz 'Wymuś duplikat', jeśli chcesz dodać je ponownie.")
+                                error = UiText.StringResource(R.string.error_word_exists)
                             )
                         }
                     } else {
-                        _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString("Nie udało się dodać słówka")) }
+                        _uiState.update { it.copy(isLoading = false, error = UiText.StringResource(R.string.error_failed_to_add_word)) }
                     }
                 }
                 is Result.Error -> {

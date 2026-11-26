@@ -16,6 +16,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -40,9 +42,14 @@ fun LoginRoute(
     onRegisterClick: () -> Unit,
     onVerifyAccountClick: (String) -> Unit,
     onForgotPasswordClick: (email: String) -> Unit,
+    startupError: String = "",
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(startupError) {
+        viewModel.showStartupError(startupError)
+    }
 
     LaunchedEffect(uiState.isLoggedIn) {
         if (uiState.isLoggedIn) {
@@ -57,6 +64,7 @@ fun LoginRoute(
         onForgotPasswordClick = { onForgotPasswordClick(uiState.email) },
         onEmailChange = viewModel::onEmailChanged,
         onPasswordChange = viewModel::onPasswordChanged,
+        onRememberMeChange = viewModel::onRememberMeChanged,
         onLoginClick = viewModel::onLoginClick
     )
 }
@@ -69,6 +77,7 @@ fun LoginScreen(
     onForgotPasswordClick: () -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
+    onRememberMeChange: (Boolean) -> Unit,
     onLoginClick: () -> Unit
 ) {
     Box(
@@ -144,6 +153,28 @@ fun LoginScreen(
                     imeAction = ImeAction.Done
                 )
             )
+
+            if (uiState.rememberMeLoaded) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = uiState.rememberMe,
+                        onCheckedChange = onRememberMeChange,
+                        enabled = !uiState.isLoading
+                    )
+                    Text(
+                        text = "Zapamiętaj mnie",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            } else {
+                CircularProgressIndicator(
+                    modifier = Modifier.height(40.dp)
+                )
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

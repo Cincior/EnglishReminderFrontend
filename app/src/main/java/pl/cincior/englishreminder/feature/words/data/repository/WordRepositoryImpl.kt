@@ -81,7 +81,7 @@ class WordRepositoryImpl @Inject constructor(
                 memorizeChance = userWord.memorizeChance.toFloat()
             )
         }
-        wordDAO.insertWords(userWords.map { userWord ->
+        wordDAO.syncWords(userWords.map { userWord ->
             WordEntity(
                 id = userWord.id,
                 word = userWord.word,

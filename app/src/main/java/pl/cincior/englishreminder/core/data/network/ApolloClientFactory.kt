@@ -7,10 +7,11 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Provider
 
 class ApolloClientFactory @Inject constructor(
-    private val tokenRefreshInterceptor: TokenRefreshInterceptor,
-    private val authInterceptor: AuthInterceptor
+    private val tokenRefreshInterceptor: Provider<TokenRefreshInterceptor>,
+    private val authInterceptor: Provider<AuthInterceptor>
 ) {
 
     private fun createBaseOkHttpClientBuilder(): OkHttpClient.Builder {
@@ -36,8 +37,8 @@ class ApolloClientFactory @Inject constructor(
 
     fun createAuthorizedApolloClient(serverUrl: String): ApolloClient {
         val okHttpClient = createBaseOkHttpClientBuilder()
-            .addInterceptor(authInterceptor)
-            .addInterceptor(tokenRefreshInterceptor)
+            .addInterceptor(authInterceptor.get())
+            .addInterceptor(tokenRefreshInterceptor.get())
             .build()
 
         return ApolloClient.Builder()

@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @Singleton
 class TokenRefreshInterceptor @Inject constructor(
     private val tokenStorage: TokenStorage,
-    @param:IdentityApolloClient private val identityApolloClient: Provider<ApolloClient>
+    @param:IdentityApolloClient private val identityApolloClient: ApolloClient
 ) : Interceptor {
 
     private val lock = Any()
@@ -42,6 +42,7 @@ class TokenRefreshInterceptor @Inject constructor(
                     runBlocking {
                         tokenStorage.clearAuthToken()
                         tokenStorage.clearRefreshToken()
+                        tokenStorage.clearRememberMe()
                     }
                     return response
                 }
@@ -62,6 +63,7 @@ class TokenRefreshInterceptor @Inject constructor(
                     runBlocking {
                         tokenStorage.clearAuthToken()
                         tokenStorage.clearRefreshToken()
+                        tokenStorage.clearRememberMe()
                     }
                 }
             }
@@ -73,7 +75,7 @@ class TokenRefreshInterceptor @Inject constructor(
     private fun performTokenRefresh(refreshToken: String): Pair<String, String>? {
         return try {
             val response = runBlocking {
-                identityApolloClient.get().mutation(RefreshMutation(refreshToken = refreshToken)).execute()
+                identityApolloClient.mutation(RefreshMutation(refreshToken = refreshToken)).execute()
             }
             val refreshData = response.data?.refresh
             if (refreshData != null && refreshData.token.isNotBlank() && refreshData.refreshToken.isNotBlank()) {

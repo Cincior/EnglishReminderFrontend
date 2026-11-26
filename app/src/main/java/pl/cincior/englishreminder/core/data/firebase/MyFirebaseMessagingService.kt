@@ -29,10 +29,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         Log.d("FCM", "Body: ${message.notification?.body}")
         Log.d("FCM", "================================")
 
+        val wordId = message.data["wordId"]
+
         NotificationHelper.showNotification(
             applicationContext,
-            message.notification?.title ?: "Blad tytulu",
-            message.notification?.body ?: "Blad tresci"
+            message.notification?.title ?: message.data["title"] ?: "English Reminder",
+            message.notification?.body ?: message.data["body"] ?: "",
+            wordId = wordId
         )
     }
 

@@ -4,12 +4,14 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
+import androidx.navigation.toRoute
+import kotlinx.serialization.Serializable
 import pl.cincior.englishreminder.feature.auth.presentation.login.LoginRoute
+import pl.cincior.englishreminder.feature.auth.presentation.startup.StartupRoute
 import pl.cincior.englishreminder.feature.auth.presentation.register.RegisterRoute
 import pl.cincior.englishreminder.feature.auth.presentation.reset_password.ResetPasswordRoute
 import pl.cincior.englishreminder.feature.auth.presentation.reset_request.ResetRequestRoute
@@ -19,24 +21,17 @@ import pl.cincior.englishreminder.feature.words.presentation.details.WordDetails
 import pl.cincior.englishreminder.feature.words.presentation.home.HomeRoute
 import pl.cincior.englishreminder.feature.words.presentation.list.WordListRoute
 
-sealed class Screen(val route: String) {
-    data object Login : Screen("Login")
-    data object Home : Screen("Home")
-    data object Register : Screen("Register")
-    data object VerifyAccount : Screen("VerifyAccount?email={email}") {
-        fun createRoute(email: String = "") = "VerifyAccount?email=$email"
-    }
-    data object ResetPasswordRequest : Screen("ResetPasswordRequest?email={email}") {
-        fun createRoute(email: String = "") = "ResetPasswordRequest?email=$email"
-    }
-    data object ResetPassword : Screen("ResetPassword?email={email}") {
-        fun createRoute(email: String = "") = "ResetPassword?email=$email"
-    }
-    data object WordList : Screen("WordList")
-    data object WordDetails : Screen("WordDetails/{id}") {
-        fun createRoute(id: String) = "WordDetails/$id"
-    }
-    data object WordAdd : Screen("AddWord")
+sealed interface Screen {
+    @Serializable data object Splash : Screen
+    @Serializable data class Login(val startupError: String? = null) : Screen
+    @Serializable data object Home : Screen
+    @Serializable data object Register : Screen
+    @Serializable data class VerifyAccount(val email: String? = null) : Screen
+    @Serializable data class ResetPasswordRequest(val email: String? = null) : Screen
+    @Serializable data class ResetPassword(val email: String? = null) : Screen
+    @Serializable data object WordList : Screen
+    @Serializable data class WordDetails(val id: String) : Screen
+    @Serializable data object WordAdd : Screen
 }
 
 @Composable
@@ -44,136 +39,131 @@ fun AppNavigation(
     navController: NavHostController = rememberNavController()
 ) {
     NavHost(
-        modifier = Modifier
-            .statusBarsPadding(),
+        modifier = Modifier.statusBarsPadding(),
         navController = navController,
-        startDestination = Screen.Login.route
+        startDestination = Screen.Splash
     ) {
-        composable(Screen.Login.route) {
+        composable<Screen.Splash> {
+            StartupRoute(
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home) {
+                        popUpTo<Screen.Splash> { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = { startupError ->
+                    navController.navigate(Screen.Login(startupError = startupError)) {
+                        popUpTo<Screen.Splash> { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable<Screen.Login> { backStackEntry ->
+            val loginArgs = backStackEntry.toRoute<Screen.Login>()
             LoginRoute(
+                startupError = loginArgs.startupError.orEmpty(),
                 onLoginSuccess = {
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                    navController.navigate(Screen.Home) {
+                        popUpTo<Screen.Login> { inclusive = true }
                     }
                 },
                 onRegisterClick = {
-                    navController.navigate(Screen.Register.route)
+                    navController.navigate(Screen.Register)
                 },
                 onVerifyAccountClick = {
-                    navController.navigate(Screen.VerifyAccount.createRoute())
+                    navController.navigate(Screen.VerifyAccount())
                 },
                 onForgotPasswordClick = { email ->
-                    navController.navigate(Screen.ResetPasswordRequest.createRoute(email))
+                    navController.navigate(Screen.ResetPasswordRequest(email = email))
                 }
             )
         }
 
-        composable(Screen.Home.route) {
+        composable<Screen.Home> {
             HomeRoute(
-                onNavigateToLogin = { navController.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Home.route) { inclusive = true }
-                } },
-                onNavigateToWordDetails = { wordId ->
-                    navController.navigate(Screen.WordDetails.createRoute(wordId))
+                onNavigateToLogin = {
+                    navController.navigate(Screen.Login()) {
+                        popUpTo<Screen.Home> { inclusive = true }
+                    }
                 },
-                onNavigationToWordList = { navController.navigate(Screen.WordList.route) },
-                onNavigationToAddWord = { navController.navigate(Screen.WordAdd.route) }
+                onNavigateToWordDetails = { wordId ->
+                    navController.navigate(Screen.WordDetails(id = wordId))
+                },
+                onNavigationToWordList = {
+                    navController.navigate(Screen.WordList)
+                },
+                onNavigationToAddWord = {
+                    navController.navigate(Screen.WordAdd)
+                }
             )
         }
 
-        composable(Screen.Register.route) {
+        composable<Screen.Register> {
             RegisterRoute(
                 onBackClicked = { navController.popBackStack() },
                 onRegisterSuccess = { email ->
-                    navController.navigate(Screen.VerifyAccount.createRoute(email)) {
-                        popUpTo(Screen.Register.route) { inclusive = true }
+                    navController.navigate(Screen.VerifyAccount(email = email)) {
+                        popUpTo<Screen.Register> { inclusive = true }
                     }
                 }
             )
         }
 
-        composable(
-            Screen.VerifyAccount.route,
-            arguments = listOf(navArgument("email") {
-                type = NavType.StringType
-                defaultValue = ""
-                nullable = true
-            })
-        ) {
+        composable<Screen.VerifyAccount> {
             VerifyAccountRoute(
                 onBackClicked = { navController.popBackStack() },
                 onVerifySuccess = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.VerifyAccount.route) { inclusive = true }
+                    navController.navigate(Screen.Login()) {
+                        popUpTo<Screen.VerifyAccount> { inclusive = true }
                     }
                 }
             )
         }
 
-        composable(
-            route = Screen.ResetPasswordRequest.route,
-            arguments = listOf(navArgument("email") {
-                type = NavType.StringType
-                defaultValue = ""
-                nullable = true
-            })
-        ) {
+        composable<Screen.ResetPasswordRequest> {
             ResetRequestRoute(
                 onBackClicked = { navController.popBackStack() },
                 onRequestSuccess = { email ->
-                    navController.navigate(Screen.ResetPassword.createRoute(email)) {
-                        popUpTo(Screen.ResetPasswordRequest.route) { inclusive = true }
+                    navController.navigate(Screen.ResetPassword(email = email)) {
+                        popUpTo<Screen.ResetPasswordRequest> { inclusive = true }
                     }
                 }
             )
         }
 
-        composable(
-            route = Screen.ResetPassword.route,
-            arguments = listOf(navArgument("email") {
-                type = NavType.StringType
-                defaultValue = ""
-                nullable = true
-            })
-        ) {
+        composable<Screen.ResetPassword> {
             ResetPasswordRoute(
                 onBackClicked = { navController.popBackStack() },
                 onResetSuccess = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.ResetPassword.route) { inclusive = true }
+                    navController.navigate(Screen.Login()) {
+                        popUpTo<Screen.ResetPassword> { inclusive = true }
                     }
                 }
             )
         }
 
-        composable(Screen.WordList.route) {
+        composable<Screen.WordList>(
+            deepLinks = listOf(navDeepLink { uriPattern = "englishreminder://word_list" })
+        ) {
             WordListRoute(
                 onNavigateToWordDetails = { wordId ->
-                    navController.navigate(Screen.WordDetails.createRoute(wordId))
+                    navController.navigate(Screen.WordDetails(id = wordId))
                 },
                 onBackClick = {
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.WordList.route) { inclusive = true }
-                    }
+                    navController.popBackStack()
                 }
             )
         }
 
-        composable(
-            route = Screen.WordDetails.route,
-            arguments = listOf(
-                navArgument("id") {
-                    type = NavType.StringType
-                    nullable = false
-                }
-            )
+        composable<Screen.WordDetails>(
+            deepLinks = listOf(navDeepLink { uriPattern = "englishreminder://word_details/{id}" })
         ) {
             WordDetailsRoute(
                 onNavigationBack = { navController.popBackStack() }
             )
         }
 
-        composable(Screen.WordAdd.route) {
+        composable<Screen.WordAdd> {
             AddWordRoute(
                 onNavigateBack = { navController.popBackStack() }
             )

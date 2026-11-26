@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.cincior.englishreminder.R
 import pl.cincior.englishreminder.core.domain.model.Result
 import pl.cincior.englishreminder.core.presentation.UiText
 import pl.cincior.englishreminder.core.presentation.asUiText
@@ -30,7 +31,7 @@ class WordDetailsViewModel @Inject constructor(
         if (wordId.isNotBlank()) {
             observeWord()
         } else {
-            _uiState.update { it.copy(error = UiText.DynamicString("Nie znaleziono identyfikatora słówka")) }
+            _uiState.update { it.copy(error = UiText.StringResource(R.string.error_word_id_not_found)) }
         }
     }
 
@@ -88,7 +89,7 @@ class WordDetailsViewModel @Inject constructor(
         val currentWord = _uiState.value.word ?: return
         val answer = _uiState.value.testState.answer
         if (answer.isBlank()) {
-            _uiState.update { it.copy(testState = it.testState.copy(error = UiText.DynamicString("Wpisz odpowiedź przed sprawdzeniem"))) }
+            _uiState.update { it.copy(testState = it.testState.copy(error = UiText.StringResource(R.string.error_type_answer_first))) }
             return
         }
 
@@ -179,8 +180,9 @@ class WordDetailsViewModel @Inject constructor(
                             notificationState = it.notificationState.copy(
                                 isScheduling = false,
                                 showPicker = false,
-                                successMessage = UiText.DynamicString(
-                                    "Zaplanowano powiadomienie na ${scheduleDateTime.toFormattedString()}!"
+                                successMessage = UiText.StringResource(
+                                    R.string.notification_scheduled_success,
+                                    arrayOf(scheduleDateTime.toFormattedString())
                                 ),
                                 error = null
                             )
@@ -230,7 +232,7 @@ class WordDetailsViewModel @Inject constructor(
         val newTranslation = _uiState.value.editState.translation.trim()
 
         if (newWord.isBlank() || newTranslation.isBlank()) {
-            _uiState.update { it.copy(editState = it.editState.copy(error = UiText.DynamicString("Wypełnij słówko i tłumaczenie"))) }
+            _uiState.update { it.copy(editState = it.editState.copy(error = UiText.StringResource(R.string.error_fill_word_and_translation_edit))) }
             return
         }
 
@@ -241,7 +243,7 @@ class WordDetailsViewModel @Inject constructor(
                 is Result.Success -> {
                     _uiState.update {
                         it.copy(
-                            successMessage = UiText.DynamicString("Słówko zostało pomyślnie zaktualizowane"),
+                            successMessage = UiText.StringResource(R.string.word_updated_success),
                             editState = it.editState.copy(
                                 isUpdating = false,
                                 showDialog = false,

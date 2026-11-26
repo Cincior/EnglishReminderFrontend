@@ -1,7 +1,5 @@
 package pl.cincior.englishreminder.core.data.network
 
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 import pl.cincior.englishreminder.core.domain.repository.TokenStorage
@@ -13,9 +11,7 @@ class AuthInterceptor @Inject constructor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
 
-        val token = runBlocking {
-            tokenStorage.getAuthToken().firstOrNull()
-        }
+        val token = tokenStorage.getAuthTokenSync()
 
         val request = if (!token.isNullOrBlank()) {
             originalRequest.newBuilder()

@@ -28,6 +28,7 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
+        getNickname()
         subscribeUserWords()
         refreshWordsFromBackend()
     }
@@ -70,13 +71,18 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getNickname() {
-        _uiState.update { it.copy(nickName = tokenClaimsService.getUserClaims().nickname) }
+        viewModelScope.launch {
+            val claims = tokenClaimsService.getUserClaims()
+            val name = claims?.nickname.orEmpty()
+            _uiState.update { it.copy(nickName = name) }
+        }
     }
 
     fun logout() {
         viewModelScope.launch {
             tokenStorage.clearAuthToken()
             tokenStorage.clearRefreshToken()
+            tokenStorage.clearRememberMe()
             _uiState.update { it.copy(isLoggedIn = false) }
         }
     }

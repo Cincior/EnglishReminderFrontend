@@ -11,6 +11,7 @@ import pl.cincior.englishreminder.identity.graphql.type.UserRole
 
 interface AuthRepository {
     suspend fun login(email: String, password: String): Result<AuthToken, AuthError>
+    suspend fun refreshToken(refreshToken: String): Result<AuthToken, AuthError>
     suspend fun register(
         name: String,
         surname: String,
